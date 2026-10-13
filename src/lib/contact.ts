@@ -1,3 +1,4 @@
+import { Resend } from 'resend';
 import { ContactFormData, BrandWaitlistData } from './validations';
 
 export interface ContactSubmissionResult {
@@ -57,7 +58,70 @@ export async function submitContactInquiry(
     timestamp: new Date().toISOString(),
   });
 
-  // Outbound webhook dispatcher with SSRF and timeout guards
+  // 1. Resend email dispatch
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (resendApiKey) {
+    try {
+      const resend = new Resend(resendApiKey);
+      const toEmail = process.env.RESEND_TO_EMAIL || 'shreyashsr2004@gmail.com';
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+      await resend.emails.send({
+        from: fromEmail,
+        to: toEmail,
+        replyTo: data.email,
+        subject: `[ZenithDistrict // ${data.inquiryType}] ${data.name} (${referenceId})`,
+        text: `NEW INQUIRY DISPATCH // ${referenceId}\n\n` +
+          `Category: ${data.inquiryType}\n` +
+          `Sender: ${data.name} <${data.email}>\n` +
+          `Company / Venture: ${data.company || 'N/A'}\n` +
+          `Budget Scope: ${data.budget || 'Not specified'}\n\n` +
+          `Project Brief / Message:\n${data.message}\n\n` +
+          `Timestamp: ${new Date().toISOString()}`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 28px; border: 1px solid #27272a; background: #09090b; color: #f4f4f5; border-radius: 4px;">
+            <div style="border-bottom: 1px solid #27272a; padding-bottom: 16px; margin-bottom: 20px;">
+              <div style="font-family: monospace; font-size: 11px; letter-spacing: 0.1em; color: #71717a; text-transform: uppercase;">ZENITHDISTRICT // DISPATCH ${referenceId}</div>
+              <h2 style="margin: 8px 0 0 0; font-size: 20px; font-weight: 600; color: #ffffff;">New ${data.inquiryType} Inquiry</h2>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+              <tr>
+                <td style="padding: 6px 0; color: #71717a; width: 140px; font-family: monospace; font-size: 11px;">NAME / ORG:</td>
+                <td style="padding: 6px 0; color: #ffffff; font-weight: 500;">${data.name}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #71717a; font-family: monospace; font-size: 11px;">EMAIL:</td>
+                <td style="padding: 6px 0;"><a href="mailto:${data.email}" style="color: #38bdf8; text-decoration: none;">${data.email}</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #71717a; font-family: monospace; font-size: 11px;">COMPANY:</td>
+                <td style="padding: 6px 0; color: #d4d4d8;">${data.company || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #71717a; font-family: monospace; font-size: 11px;">BUDGET SCOPE:</td>
+                <td style="padding: 6px 0; color: #d4d4d8;">${data.budget || 'Not specified'}</td>
+              </tr>
+            </table>
+
+            <div style="background: #18181b; border-left: 2px solid #ffffff; padding: 16px; margin-bottom: 24px; border-radius: 2px;">
+              <div style="font-family: monospace; font-size: 11px; color: #71717a; margin-bottom: 8px; text-transform: uppercase;">Project Brief / Message:</div>
+              <div style="margin: 0; line-height: 1.6; color: #f4f4f5; white-space: pre-wrap; font-size: 14px;">${data.message}</div>
+            </div>
+
+            <div style="border-top: 1px solid #27272a; padding-top: 16px; font-family: monospace; font-size: 11px; color: #52525b; text-align: center;">
+              Hit reply directly to respond to ${data.name} (${data.email})
+            </div>
+          </div>
+        `,
+      });
+      console.info(`[ZenithDistrict::ContactAdapter] Resend email dispatched for ${referenceId}`);
+    } catch (err) {
+      console.error('[ZenithDistrict::ContactAdapter] Resend email dispatch failed:', err);
+    }
+  }
+
+  // 2. Outbound webhook dispatcher with SSRF and timeout guards
   const webhookUrl = process.env.CONTACT_WEBHOOK_URL;
   if (webhookUrl && isSafeWebhookUrl(webhookUrl)) {
     try {
@@ -96,6 +160,32 @@ export async function submitBrandWaitlist(
     size: data.size || 'any',
     timestamp: new Date().toISOString(),
   });
+
+  // Resend email notification
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (resendApiKey) {
+    try {
+      const resend = new Resend(resendApiKey);
+      const toEmail = process.env.RESEND_TO_EMAIL || 'shreyashsr2004@gmail.com';
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+      await resend.emails.send({
+        from: fromEmail,
+        to: toEmail,
+        replyTo: data.email,
+        subject: `[ZenithDistrict Waitlist] ${data.email} registered for ${data.productSlug || 'Collection 01'}`,
+        text: `BRAND WAITLIST ENTRY // ${referenceId}\n\n` +
+          `Email: ${data.email}\n` +
+          `Product: ${data.productSlug || 'Collection 01'}\n` +
+          `Colorway: ${data.colorway || 'any'}\n` +
+          `Size: ${data.size || 'any'}\n` +
+          `Timestamp: ${new Date().toISOString()}`,
+      });
+      console.info(`[ZenithDistrict::BrandWaitlist] Resend email dispatched for ${referenceId}`);
+    } catch (err) {
+      console.error('[ZenithDistrict::BrandWaitlist] Resend email dispatch failed:', err);
+    }
+  }
 
   const webhookUrl = process.env.WAITLIST_WEBHOOK_URL || process.env.CONTACT_WEBHOOK_URL;
   if (webhookUrl && isSafeWebhookUrl(webhookUrl)) {
