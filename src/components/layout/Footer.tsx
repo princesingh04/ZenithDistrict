@@ -193,6 +193,10 @@ export function Footer() {
             <span>© {currentYear} ZENITHDISTRICT VENTURES. ALL RIGHTS RESERVED.</span>
             <span className="hidden sm:inline">·</span>
             <span>STRUCTURE OVER SLOGANS</span>
+            <span className="hidden sm:inline">·</span>
+            <Link href="/admin" className="hover:text-[var(--text-primary)] transition-colors">
+              OPS CONSOLE
+            </Link>
           </div>
 
           <button

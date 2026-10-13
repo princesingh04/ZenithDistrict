@@ -232,15 +232,35 @@ export const apparelProducts: ApparelProduct[] = [
       'Produced in individual batches on demand. Fabric and finishing verified against baseline prototypes.',
   },
 ];
+import { getCustomApparelProducts, getDeletedApparelSlugs } from '@/lib/custom-apparel';
 
 /**
- * Accessor methods for apparel products
+ * Accessor methods for apparel products (merging static baseline catalog with dynamic additions)
  */
 export async function getApparelProducts(): Promise<ApparelProduct[]> {
-  return [...apparelProducts].sort((a, b) => a.sortOrder - b.sortOrder);
+  const [custom, deletedSlugs] = await Promise.all([
+    getCustomApparelProducts(),
+    getDeletedApparelSlugs(),
+  ]);
+  const deletedSet = new Set(deletedSlugs);
+  const combined = apparelProducts.filter((p) => !deletedSet.has(p.slug));
+  
+  // Merge custom products, replacing static if same slug
+  for (const c of custom) {
+    if (deletedSet.has(c.slug)) continue;
+    const idx = combined.findIndex((p) => p.slug === c.slug);
+    if (idx >= 0) {
+      combined[idx] = c;
+    } else {
+      combined.push(c);
+    }
+  }
+
+  return combined.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 export async function getApparelProductBySlug(slug: string): Promise<ApparelProduct | null> {
-  const item = apparelProducts.find((p) => p.slug === slug);
+  const all = await getApparelProducts();
+  const item = all.find((p) => p.slug === slug);
   return item ?? null;
 }

@@ -42,6 +42,7 @@ export interface VentureBase {
     accent?: string;
     badgeBg?: string;
   };
+  bannerImage?: string;
   // Scalability hooks for future venture architecture
   parentId?: string;
   acquiredFrom?: string;
@@ -205,6 +206,7 @@ export interface ApparelProduct {
   };
   care: string[];
   sizeChart: SizeChartEntry[];
+  realImage?: string;
   realImages?: Record<string, Partial<Record<GarmentView, string>>>;
   sortOrder: number;
   featured: boolean;

@@ -1,0 +1,87 @@
+{
+  "products": [
+    {
+      "id": "prod-3420",
+      "slug": "new-platform-utility",
+      "name": "New Platform Utility",
+      "division": "Z-03",
+      "divisionSlug": "products",
+      "category": "Developer Tools",
+      "status": "Building",
+      "tagline": "High-performance client-side utility for web applications.",
+      "description": "Detailed architectural description of the venture problem space and implementation.",
+      "bannerImage": "/uploads/screenshot-2026-10-13-132057-311198.png",
+      "featured": true,
+      "featuredOrder": 2,
+      "tags": [
+        "TypeScript",
+        "WASM",
+        "Developer Tool"
+      ],
+      "startedAt": "2026-Q4",
+      "updatedAt": "2026-Q4",
+      "problem": "Developers face high latency and privacy leakage with remote cloud converters.",
+      "solution": "Browser-native WebAssembly pipeline with zero external server transit.",
+      "architectureNotes": [
+        "Sub-5ms execution budget on V8 isolates",
+        "Zero external database required for client-side processing"
+      ],
+      "roadmap": [
+        {
+          "phase": "Phase 1: Core Operations",
+          "status": "In Progress",
+          "summary": "Initial production milestone."
+        }
+      ],
+      "links": {
+        "live": "https://new-platform-utility.zenithdistrict.com",
+        "repo": "https://github.com/princesingh04/new-platform-utility"
+      }
+    },
+    {
+      "id": "prod-02",
+      "slug": "product-forum",
+      "name": "Product.forum",
+      "division": "Z-03",
+      "divisionSlug": "products",
+      "category": "Discovery",
+      "status": "Building",
+      "tagline": "Transparent discovery and verification for modern products and businesses.",
+      "description": "Online feedback loops are increasingly polluted by bot upvotes, sponsored placements, and unverified reviews. Product.forum explores a high-trust verification model where discussion is anchored to authentic usage and founder disclosures.",
+      "bannerImage": "/uploads/screenshot-2026-10-13-132057-341133.png",
+      "featured": true,
+      "featuredOrder": 3,
+      "tags": [
+        "Community",
+        "Product Discovery",
+        "Verification",
+        "Directory"
+      ],
+      "startedAt": "2026-Q2",
+      "updatedAt": "2026-Q4",
+      "problem": "Modern product launch platforms have skewed toward vanity metrics, coordinated voting rings, and shallow engagement, making it hard to identify genuinely useful products.",
+      "solution": "An architectural forum layout that prioritizes verified engineering teardowns, longitudinal user reviews, and structured founder AMA threads.",
+      "architectureNotes": [
+        "Next.js App Router with hybrid static-dynamic indexing",
+        "PostgreSQL full-text search with vector ranking for product discovery",
+        "Cryptographic domain ownership verification for creators"
+      ],
+      "roadmap": [
+        {
+          "phase": "Alpha Prototype",
+          "status": "In Progress",
+          "summary": "Core product directory schema and verification pipeline."
+        },
+        {
+          "phase": "Community Feed",
+          "status": "Planned",
+          "summary": "Structured discussion threads and verified customer badge validation."
+        }
+      ],
+      "links": {
+        "live": "https://product.forum"
+      }
+    }
+  ],
+  "labs": []
+}

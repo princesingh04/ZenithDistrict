@@ -48,6 +48,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             view="front"
             print={product.print}
             aspectRatio="4/5"
+            realImage={product.realImages?.[selectedColorway.id]?.front || product.realImage}
             alt={`${product.name} in ${selectedColorway.label}, front view`}
           />
         </div>

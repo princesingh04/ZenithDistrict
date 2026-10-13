@@ -12,6 +12,8 @@ import {
   VentureStatus,
 } from '@/data/types';
 
+import { getCustomProducts, getCustomLabs, getDeletedVentures } from './custom-ventures';
+
 export async function getBrands(): Promise<BrandVenture[]> {
   return [...brandsData];
 }
@@ -22,21 +24,47 @@ export async function getBrandBySlug(slug: string): Promise<BrandVenture | null>
 }
 
 export async function getProducts(): Promise<ProductVenture[]> {
-  return [...productsData];
+  const [custom, deleted] = await Promise.all([getCustomProducts(), getDeletedVentures()]);
+  const deletedSet = new Set(deleted.products);
+  const customMap = new Map(custom.map((p) => [p.slug, p]));
+  const merged = productsData
+    .filter((p) => !deletedSet.has(p.slug))
+    .map((p) => customMap.get(p.slug) || p);
+
+  for (const c of custom) {
+    if (deletedSet.has(c.slug)) continue;
+    if (!productsData.some((p) => p.slug === c.slug)) {
+      merged.push(c);
+    }
+  }
+  return merged;
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductVenture | null> {
-  const product = productsData.find((p) => p.slug === slug);
-  return product ?? null;
+  const all = await getProducts();
+  return all.find((p) => p.slug === slug) ?? null;
 }
 
 export async function getLabs(): Promise<LabExperiment[]> {
-  return [...labsData];
+  const [custom, deleted] = await Promise.all([getCustomLabs(), getDeletedVentures()]);
+  const deletedSet = new Set(deleted.labs);
+  const customMap = new Map(custom.map((l) => [l.slug, l]));
+  const merged = labsData
+    .filter((l) => !deletedSet.has(l.slug))
+    .map((l) => customMap.get(l.slug) || l);
+
+  for (const c of custom) {
+    if (deletedSet.has(c.slug)) continue;
+    if (!labsData.some((l) => l.slug === c.slug)) {
+      merged.push(c);
+    }
+  }
+  return merged;
 }
 
 export async function getLabBySlug(slug: string): Promise<LabExperiment | null> {
-  const lab = labsData.find((l) => l.slug === slug);
-  return lab ?? null;
+  const all = await getLabs();
+  return all.find((l) => l.slug === slug) ?? null;
 }
 
 export async function getAllVentures(): Promise<AnyVenture[]> {
