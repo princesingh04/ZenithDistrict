@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   GarmentSilhouette,
   GarmentColorway,
@@ -24,6 +24,7 @@ import {
   Sparkles,
   Info,
   AlertCircle,
+  RotateCcw,
 } from 'lucide-react';
 
 const SILHOUETTES: { id: GarmentSilhouette; label: string }[] = [
@@ -51,8 +52,13 @@ const PRESET_COLORS: GarmentColorway[] = [
 
 const ALL_SIZES: ApparelSize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-export function GarmentCreatorStudio() {
+function GarmentCreatorStudioInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editSlug = searchParams.get('edit');
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(false);
 
   // Form states
   const [name, setName] = useState('Heavyweight Boxy Tee "Datum"');
@@ -98,15 +104,62 @@ export function GarmentCreatorStudio() {
   // Derive active colorway for preview
   const activeColorway = colorways.find((c) => c.id === selectedColorwayId) || colorways[0] || PRESET_COLORS[0];
 
+  // Load product if editing
+  useEffect(() => {
+    if (!editSlug) {
+      setIsEditing(false);
+      return;
+    }
+
+    setLoadingProduct(true);
+    fetch('/api/admin/products')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.products && Array.isArray(data.products)) {
+          const found = data.products.find((p: ApparelProduct) => p.slug === editSlug);
+          if (found) {
+            setName(found.name);
+            setCode(found.code);
+            setSlug(found.slug);
+            setSilhouette(found.silhouette);
+            setPrintType(found.print.type);
+            setFrontPlacement(found.print.frontPlacement || '');
+            setBackPlacement(found.print.backPlacement || '');
+            setPrice(found.price);
+            setPriceConfirmed(found.priceConfirmed);
+            setAvailability(found.availability);
+            setGsm(found.fabric.gsm || 240);
+            setComposition(found.fabric.composition);
+            setWeave(found.fabric.weave);
+            setFitNote(found.fitNote);
+            setDescription(found.description);
+            setDetailsText((found.details || []).join('\n'));
+            if (found.colorways && found.colorways.length > 0) {
+              setColorways(found.colorways);
+              setSelectedColorwayId(found.colorways[0].id);
+            }
+            if (found.sizes && found.sizes.length > 0) {
+              setSelectedSizes(found.sizes);
+            }
+            setIsEditing(true);
+          }
+        }
+      })
+      .catch((err) => console.error('Error loading product for editing:', err))
+      .finally(() => setLoadingProduct(false));
+  }, [editSlug]);
+
   // Auto-slug generator
   const handleNameChange = (val: string) => {
     setName(val);
-    const autoSlug = val
-      .toLowerCase()
-      .replace(/["']/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    setSlug(autoSlug);
+    if (!isEditing) {
+      const autoSlug = val
+        .toLowerCase()
+        .replace(/["']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      setSlug(autoSlug);
+    }
   };
 
   const handleToggleColorway = (cw: GarmentColorway) => {
@@ -221,6 +274,28 @@ export function GarmentCreatorStudio() {
 
   return (
     <div className="space-y-8">
+      {/* Editing State Banner */}
+      {isEditing && (
+        <div className="p-3 bg-[var(--signal)]/10 border border-[var(--signal)]/30 text-xs font-mono flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[var(--signal)] animate-pulse" />
+            <span className="font-bold text-[var(--signal)]">EDITING SPECIFICATION:</span>
+            <span className="text-[var(--text-primary)]">{code} — {name}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setIsEditing(false);
+              router.push('/admin/apparel/new');
+            }}
+            className="text-[10px] uppercase font-mono-tag text-[var(--stone)] hover:text-[var(--text-primary)] underline cursor-pointer flex items-center gap-1"
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span>Cancel Edit & Switch to New Garment</span>
+          </button>
+        </div>
+      )}
+
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-6">
         <div>
@@ -232,7 +307,7 @@ export function GarmentCreatorStudio() {
             <span>BACK TO APPAREL CATALOG</span>
           </Link>
           <h1 className="text-2xl sm:text-3xl font-serif text-[var(--text-primary)]">
-            Garment Creator & Vector CAD Studio
+            {isEditing ? `Edit Garment Spec // ${code}` : 'Garment Creator & Vector CAD Studio'}
           </h1>
         </div>
 
@@ -261,7 +336,7 @@ export function GarmentCreatorStudio() {
             ) : (
               <>
                 <Save className="w-3.5 h-3.5" />
-                <span>PUBLISH TO STORE</span>
+                <span>{isEditing ? 'UPDATE STORE SPEC' : 'PUBLISH TO STORE'}</span>
               </>
             )}
           </button>
@@ -710,5 +785,20 @@ export function GarmentCreatorStudio() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function GarmentCreatorStudio() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-16 text-center font-mono text-xs text-[var(--stone)] flex items-center justify-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[var(--signal)] animate-ping" />
+          <span>INITIALIZING CAD STUDIO...</span>
+        </div>
+      }
+    >
+      <GarmentCreatorStudioInner />
+    </Suspense>
   );
 }

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ApparelProduct } from '@/data/types';
-import { PlusCircle, Trash2, ExternalLink, RefreshCw, Copy, Check } from 'lucide-react';
+import { PlusCircle, Trash2, ExternalLink, RefreshCw, Copy, Check, Edit3 } from 'lucide-react';
 
 interface ApparelCatalogClientProps {
   initialProducts: (ApparelProduct & { isCustom?: boolean })[];
@@ -150,6 +150,15 @@ export function ApparelCatalogClient({ initialProducts }: ApparelCatalogClientPr
               </Link>
 
               <div className="flex items-center gap-2">
+                <Link
+                  href={`/admin/apparel/new?edit=${p.slug}`}
+                  className="px-2 py-1 text-[var(--signal)] hover:text-white border border-[var(--signal)]/40 hover:bg-[var(--signal)] flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Edit garment specification"
+                >
+                  <Edit3 className="w-3 h-3" />
+                  <span>EDIT</span>
+                </Link>
+
                 <button
                   onClick={() => handleCopyTs(p)}
                   className="px-2 py-1 text-[var(--stone)] hover:text-[var(--text-primary)] border border-[var(--border-color)] hover:border-[var(--text-primary)] flex items-center gap-1 transition-colors cursor-pointer"

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ProductVenture, LabExperiment, VentureStatus } from '@/data/types';
-import { Copy, Check, Box, FlaskConical, ExternalLink, PlusCircle, Image as ImageIcon } from 'lucide-react';
+import { Copy, Check, Box, FlaskConical, ExternalLink, PlusCircle, Image as ImageIcon, Edit3, RotateCcw } from 'lucide-react';
 
 interface VenturesRegistryClientProps {
   products: ProductVenture[];
@@ -25,6 +25,52 @@ export function VenturesRegistryClient({ products, labs }: VenturesRegistryClien
   const [problemHypothesis, setProblemHypothesis] = useState('Developers face high latency and privacy leakage with remote cloud converters.');
   const [solutionMilestone, setSolutionMilestone] = useState('Browser-native WebAssembly pipeline with zero external server transit.');
   const [copiedSnippet, setCopiedSnippet] = useState(false);
+  const [editingTarget, setEditingTarget] = useState<string | null>(null);
+
+  const handleEditProduct = (p: ProductVenture) => {
+    setGenType('product');
+    setName(p.name);
+    setSlug(p.slug);
+    setStatus(p.status);
+    setCategory(p.category);
+    setTagline(p.tagline);
+    setDesc(p.longDescription || p.description);
+    setTags(p.tags.join(', '));
+    setProblemHypothesis(p.problem);
+    setSolutionMilestone(p.solution);
+    setBannerImage(p.bannerImage || '');
+    setEditingTarget(`Z-03 // ${p.name}`);
+    document.getElementById('venture-generator')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleEditLab = (l: LabExperiment) => {
+    setGenType('lab');
+    setName(l.name);
+    setSlug(l.slug);
+    setStatus(l.status);
+    setTagline(l.tagline);
+    setDesc(l.description);
+    setTags(l.tags.join(', '));
+    setProblemHypothesis(l.hypothesis);
+    setSolutionMilestone(l.nextMilestone);
+    setBannerImage(l.bannerImage || '');
+    setEditingTarget(`Z-04 // ${l.name}`);
+    document.getElementById('venture-generator')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleResetGenerator = () => {
+    setName('New Platform Utility');
+    setSlug('new-platform-utility');
+    setStatus('Building');
+    setCategory('Developer Tools');
+    setTagline('High-performance client-side utility for web applications.');
+    setDesc('Detailed architectural description of the venture problem space and implementation.');
+    setBannerImage('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop');
+    setTags('TypeScript, WASM, Developer Tool');
+    setProblemHypothesis('Developers face high latency and privacy leakage with remote cloud converters.');
+    setSolutionMilestone('Browser-native WebAssembly pipeline with zero external server transit.');
+    setEditingTarget(null);
+  };
 
   const handleNameChange = (val: string) => {
     setName(val);
@@ -163,15 +209,25 @@ export function VenturesRegistryClient({ products, labs }: VenturesRegistryClien
 
                 <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-between text-[10px] font-mono-tag">
                   <span className="text-[var(--stone)]">{p.category}</span>
-                  <a
-                    href={`/products/${p.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[var(--signal)] hover:underline flex items-center gap-1"
-                  >
-                    <span>VIEW SPEC</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleEditProduct(p)}
+                      className="text-[var(--stone)] hover:text-[var(--signal)] flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                      <span>EDIT SPEC</span>
+                    </button>
+                    <a
+                      href={`/products/${p.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[var(--stone)] hover:text-[var(--text-primary)] flex items-center gap-1"
+                    >
+                      <span>VIEW</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
             ))
@@ -198,34 +254,65 @@ export function VenturesRegistryClient({ products, labs }: VenturesRegistryClien
                 </div>
 
                 <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-between text-[10px] font-mono-tag">
-                  <span className="text-[var(--stone)]">NEXT: {l.nextMilestone}</span>
-                  <a
-                    href={`/labs/${l.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#FF4F1F] hover:underline flex items-center gap-1"
-                  >
-                    <span>VIEW LAB</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <span className="text-[var(--stone)] truncate max-w-[140px]">NEXT: {l.nextMilestone}</span>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleEditLab(l)}
+                      className="text-[var(--stone)] hover:text-[#FF4F1F] flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                      <span>EDIT SPEC</span>
+                    </button>
+                    <a
+                      href={`/labs/${l.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[var(--stone)] hover:text-[var(--text-primary)] flex items-center gap-1"
+                    >
+                      <span>VIEW</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
             ))}
       </div>
 
-      {/* Interactive Venture Snippet Generator */}
-      <div className="border border-[var(--border-color)] bg-[var(--surface-elevated)] p-6 space-y-6">
+      {/* Interactive Venture Snippet Generator & Editor */}
+      <div id="venture-generator" className="border border-[var(--border-color)] bg-[var(--surface-elevated)] p-6 space-y-6 scroll-mt-24">
+        {editingTarget && (
+          <div className="p-3 bg-[var(--signal)]/10 border border-[var(--signal)]/30 text-xs font-mono flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--signal)] animate-pulse" />
+              <span className="font-bold text-[var(--signal)]">CURRENTLY EDITING:</span>
+              <span className="text-[var(--text-primary)]">{editingTarget}</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleResetGenerator}
+              className="text-[10px] uppercase font-mono-tag text-[var(--stone)] hover:text-[var(--text-primary)] underline cursor-pointer flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset to New Venture</span>
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PlusCircle className="w-4 h-4 text-[var(--signal)]" />
             <h2 className="text-sm font-mono-tag uppercase tracking-wider text-[var(--text-primary)]">
-              VENTURE REGISTRATION SPEC GENERATOR
+              {editingTarget ? `SPECIFICATION EDITOR // ${editingTarget}` : 'VENTURE REGISTRATION SPEC GENERATOR'}
             </h2>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setGenType('product')}
+              onClick={() => {
+                setGenType('product');
+                setEditingTarget(null);
+              }}
               className={`px-2.5 py-1 text-xs font-mono transition-colors cursor-pointer ${
                 genType === 'product'
                   ? 'bg-[var(--signal)] text-white'
