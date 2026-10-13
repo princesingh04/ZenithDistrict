@@ -42,6 +42,7 @@ export interface VentureBase {
     accent?: string;
     badgeBg?: string;
   };
+  bannerImage?: string;
   // Scalability hooks for future venture architecture
   parentId?: string;
   acquiredFrom?: string;

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ProductVenture, LabExperiment, VentureStatus } from '@/data/types';
-import { Copy, Check, Box, FlaskConical, ExternalLink, PlusCircle } from 'lucide-react';
+import { Copy, Check, Box, FlaskConical, ExternalLink, PlusCircle, Image as ImageIcon } from 'lucide-react';
 
 interface VenturesRegistryClientProps {
   products: ProductVenture[];
@@ -20,6 +20,7 @@ export function VenturesRegistryClient({ products, labs }: VenturesRegistryClien
   const [category, setCategory] = useState('Developer Tools');
   const [tagline, setTagline] = useState('High-performance client-side utility for web applications.');
   const [desc, setDesc] = useState('Detailed architectural description of the venture problem space and implementation.');
+  const [bannerImage, setBannerImage] = useState('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop');
   const [tags, setTags] = useState('TypeScript, WASM, Developer Tool');
   const [problemHypothesis, setProblemHypothesis] = useState('Developers face high latency and privacy leakage with remote cloud converters.');
   const [solutionMilestone, setSolutionMilestone] = useState('Browser-native WebAssembly pipeline with zero external server transit.');
@@ -44,6 +45,7 @@ export function VenturesRegistryClient({ products, labs }: VenturesRegistryClien
         status,
         tagline,
         description: desc,
+        ...(bannerImage.trim() ? { bannerImage: bannerImage.trim() } : {}),
         featured: true,
         tags: tagList,
         startedAt: '2026-Q4',
@@ -125,9 +127,21 @@ export function VenturesRegistryClient({ products, labs }: VenturesRegistryClien
           ? products.map((p) => (
               <div
                 key={p.slug}
-                className="border border-[var(--border-color)] bg-[var(--surface-card)] p-5 flex flex-col justify-between space-y-4 hover:border-[var(--signal)] transition-colors"
+                className="border border-[var(--border-color)] bg-[var(--surface-card)] flex flex-col justify-between hover:border-[var(--signal)] transition-colors overflow-hidden"
               >
-                <div className="space-y-3">
+                {p.bannerImage && (
+                  <div className="w-full h-28 border-b border-[var(--border-color)] overflow-hidden relative">
+                    <img
+                      src={p.bannerImage}
+                      alt={p.name}
+                      className="w-full h-full object-cover filter grayscale contrast-110"
+                    />
+                    <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-[var(--bg-page)]/80 text-[8px] font-mono uppercase text-[var(--stone)]">
+                      BANNER
+                    </div>
+                  </div>
+                )}
+                <div className="p-5 space-y-3">
                   <div className="flex items-center justify-between text-[11px] font-mono">
                     <span className="font-bold text-[var(--signal)]">{p.id}</span>
                     <span className="px-1.5 py-0.5 text-[9px] uppercase tracking-wider bg-[var(--surface-elevated)] border border-[var(--border-color)]">
@@ -289,6 +303,69 @@ export function VenturesRegistryClient({ products, labs }: VenturesRegistryClien
             />
           </div>
         </div>
+
+        {/* Banner Image URL & Live Preview (For Software Products) */}
+        {genType === 'product' && (
+          <div className="space-y-3 pt-2 border-t border-[var(--border-color)]">
+            <div className="flex items-center justify-between text-xs font-mono">
+              <label className="block text-[10px] font-mono-tag uppercase text-[var(--stone)]">
+                UI / Architectural Showcase Banner (Image URL)
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setBannerImage('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop')}
+                  className="text-[10px] text-[var(--stone)] hover:text-[var(--signal)] underline cursor-pointer"
+                >
+                  Preset: Cloud Architecture
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBannerImage('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop')}
+                  className="text-[10px] text-[var(--stone)] hover:text-[var(--signal)] underline cursor-pointer"
+                >
+                  Preset: Code Terminal
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={bannerImage}
+                onChange={(e) => setBannerImage(e.target.value)}
+                placeholder="https://images.unsplash.com/... or /images/banners/..."
+                className="w-full bg-[var(--bg-page)] border border-[var(--border-color)] px-3 py-2 text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:border-[var(--signal)]"
+              />
+              {bannerImage && (
+                <button
+                  type="button"
+                  onClick={() => setBannerImage('')}
+                  className="px-2 py-1 text-[10px] font-mono text-red-500 border border-[var(--border-color)] hover:border-red-500"
+                >
+                  CLEAR
+                </button>
+              )}
+            </div>
+
+            {/* Live Visual Banner Preview */}
+            {bannerImage.trim() && (
+              <div className="border border-[var(--border-color)] bg-[var(--bg-page)] relative aspect-21/9 max-h-48 w-full overflow-hidden flex items-center justify-center">
+                <img
+                  src={bannerImage}
+                  alt="Banner preview"
+                  className="w-full h-full object-cover filter grayscale contrast-110"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+                <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-[var(--bg-page)]/90 backdrop-blur-sm border border-[var(--border-color)] text-[9px] font-mono text-[var(--stone)] uppercase">
+                  LIVE BANNER PREVIEW // {name || 'PRODUCT'}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="text-xs font-mono space-y-2">
           <label className="block text-[10px] font-mono-tag uppercase text-[var(--stone)]">

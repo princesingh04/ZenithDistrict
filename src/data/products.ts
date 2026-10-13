@@ -23,6 +23,7 @@ export const productsData: ProductVenture[] = [
       accent: '#EF4444',
       badgeBg: 'rgba(239, 68, 68, 0.12)',
     },
+    bannerImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1400&auto=format&fit=crop',
     problem:
       'Everyday users frequently need to merge two PDFs or extract pages, but are forced through ad-choked web tools that upload sensitive personal documents to unknown remote servers.',
     solution:

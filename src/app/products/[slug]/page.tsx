@@ -123,6 +123,20 @@ export default async function ProductTemplatePage({ params }: PageProps) {
           </div>
         </div>
 
+        {/* Product Architectural Banner / UI Showcase */}
+        {product.bannerImage && (
+          <div className="mt-12 border border-[var(--border-color)] bg-[var(--surface-elevated)] overflow-hidden relative aspect-16/9 sm:aspect-21/9 w-full">
+            <img
+              src={product.bannerImage}
+              alt={`${product.name} banner preview`}
+              className="w-full h-full object-cover filter grayscale contrast-105 hover:grayscale-0 transition-all duration-500"
+            />
+            <div className="absolute bottom-3 right-3 px-2 py-1 bg-[var(--bg-page)]/90 backdrop-blur-sm border border-[var(--border-color)] font-mono text-[9px] text-[var(--stone)] uppercase">
+              {product.name} // INTERFACE PREVIEW
+            </div>
+          </div>
+        )}
+
         {/* Problem & Solution Blueprint */}
         <div className="mt-16 pt-12 hairline-border-t grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {/* Problem */}
