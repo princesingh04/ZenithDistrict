@@ -338,23 +338,25 @@ export default function AboutPage() {
             </div>
           ))}
 
-          {/* Partner Placeholder */}
-          <div className="p-8 border border-dashed border-[var(--border-color)] bg-[var(--surface-elevated)]/30 flex flex-col justify-between select-none">
-            <div className="space-y-2">
-              <span className="font-mono-tag text-xs text-[var(--stone)]">
-                OPERATOR // 02
-              </span>
-              <h3 className="font-display text-2xl font-light text-[var(--stone)]">
-                Division Lead (Open Slot)
-              </h3>
-              <p className="text-xs text-[var(--muted-text)] mt-2">
-                As independent ventures graduate into standalone entities, technical co-founders and division leads will be appointed directly to oversee sovereign roadmaps.
-              </p>
+          {/* Partner Placeholder (rendered when open slot exists) */}
+          {foundersData.length < 2 && (
+            <div className="p-8 border border-dashed border-[var(--border-color)] bg-[var(--surface-elevated)]/30 flex flex-col justify-between select-none">
+              <div className="space-y-2">
+                <span className="font-mono-tag text-xs text-[var(--stone)]">
+                  OPERATOR // 0{foundersData.length + 1}
+                </span>
+                <h3 className="font-display text-2xl font-light text-[var(--stone)]">
+                  Division Lead (Open Slot)
+                </h3>
+                <p className="text-xs text-[var(--muted-text)] mt-2">
+                  As independent ventures graduate into standalone entities, technical co-founders and division leads will be appointed directly to oversee sovereign roadmaps.
+                </p>
+              </div>
+              <div className="pt-6 font-mono-tag text-[10px] text-[var(--stone)]">
+                {"// RECRUITMENT TRIGGERED BY VENTURE GRADUATION"}
+              </div>
             </div>
-            <div className="pt-6 font-mono-tag text-[10px] text-[var(--stone)]">
-              {"// RECRUITMENT TRIGGERED BY VENTURE GRADUATION"}
-            </div>
-          </div>
+          )}
         </div>
       </Container>
 

@@ -8,8 +8,17 @@ export const foundersData: Founder[] = [
     focus: 'Full-stack Systems, Product Design, Venture Architecture',
     links: {
       github: 'https://github.com/ShreyashSrivastavaa',
-      x: 'https://x.com/zenithdistrict', // TODO: update with personal handle if desired
+      x: 'https://x.com/zenithdistrict',
     },
   },
-  // Additional partners and division leads can be appended here as the district expands
+  {
+    name: 'Prince Singh',
+    role: 'Co-Founder & Systems Engineer',
+    bio: 'Software engineer and builder focused on full-stack architecture, internal tooling, and operational platforms. Powers sovereign venture infrastructure and administrative systems across ZenithDistrict.',
+    focus: 'Full-stack Architecture, Operational Infrastructure, Platform Engineering',
+    links: {
+      github: 'https://github.com/princesingh04',
+      x: 'https://x.com/Princesingh004',
+    },
+  },
 ];
