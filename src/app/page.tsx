@@ -5,7 +5,7 @@ import { TheDistrict } from '@/components/sections/TheDistrict';
 import { FeaturedVentures } from '@/components/sections/FeaturedVentures';
 import { StudioPreview } from '@/components/sections/StudioPreview';
 import { BrandsPreview } from '@/components/sections/BrandsPreview';
-import { ProductsPreview } from '@/components/sections/ProductsPreview';
+import { LiveProductsSection } from '@/components/sections/LiveProductsSection';
 import { LabsPreview } from '@/components/sections/LabsPreview';
 import { Philosophy } from '@/components/sections/Philosophy';
 import { CTASection } from '@/components/sections/CTASection';
@@ -55,8 +55,8 @@ export default async function HomePage() {
       {/* 5.1 F: BRANDS PREVIEW (Z-02) */}
       <BrandsPreview brands={brands} />
 
-      {/* 5.1 G: PRODUCTS PREVIEW (Z-03) */}
-      <ProductsPreview products={products} />
+      {/* 5.1 G: LIVE PRODUCTS (Z-03) */}
+      <LiveProductsSection products={products} />
 
       {/* 5.1 H: LABS PREVIEW (Z-04) */}
       <LabsPreview experiments={labs} />

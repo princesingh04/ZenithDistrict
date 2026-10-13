@@ -8,7 +8,21 @@ export type VentureStatus =
   | 'Building'
   | 'Beta'
   | 'Live'
-  | 'Venture';
+  | 'Venture'
+  | 'live'
+  | 'coming-soon';
+
+export type ProductStatus = 'live' | 'coming-soon';
+
+export interface Product {
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  url: string;
+  status: ProductStatus;
+  order: number;
+}
 
 export interface StatusConfig {
   label: VentureStatus;
@@ -60,10 +74,11 @@ export interface BrandVenture extends VentureBase {
   storeUrl?: string;
 }
 
-export interface ProductVenture extends VentureBase {
+export interface ProductVenture extends VentureBase, Omit<Product, 'status'> {
+  status: ProductStatus;
   division: 'Z-03';
   divisionSlug: 'products';
-  category: 'Developer Tools' | 'Web Utilities' | 'Discovery' | 'AI Systems' | 'SaaS';
+  category: string;
   problem: string;
   solution: string;
   architectureNotes?: string[];

@@ -59,7 +59,7 @@ export function CollectionShopView({ products }: CollectionShopViewProps) {
   const filteredProducts = products.filter((p) => {
     const matchSilhouette = selectedSilhouette === 'all' || p.silhouette === selectedSilhouette;
     const matchColor = selectedColor === 'all' || p.colorways.some((c) => c.id === selectedColor);
-    const matchSize = selectedSize === 'all' || p.sizes.includes(selectedSize as any);
+    const matchSize = selectedSize === 'all' || (p.sizes as readonly string[]).includes(selectedSize);
     const matchAvailability = selectedAvailability === 'all' || p.availability === selectedAvailability;
     return matchSilhouette && matchColor && matchSize && matchAvailability;
   }).sort((a, b) => {

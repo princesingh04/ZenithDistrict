@@ -42,6 +42,7 @@ export function Header() {
   }, []);
 
   return (
+
     <>
       {/* Skip to Content Accessible Link */}
       <a

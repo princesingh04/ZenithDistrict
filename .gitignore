@@ -46,3 +46,9 @@ next-env.d.ts
 # audit artifacts
 /artifacts/
 /qa/after/
+
+# neon and local agent config
+.neon
+.agents/
+skills-lock.json
+

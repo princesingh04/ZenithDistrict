@@ -1,10 +1,8 @@
 import { brandsData } from '@/data/brands';
-import { productsData } from '@/data/products';
 import { labsData } from '@/data/labs';
 import { divisions } from '@/data/divisions';
 import {
   BrandVenture,
-  ProductVenture,
   LabExperiment,
   AnyVenture,
   Division,
@@ -21,14 +19,8 @@ export async function getBrandBySlug(slug: string): Promise<BrandVenture | null>
   return brand ?? null;
 }
 
-export async function getProducts(): Promise<ProductVenture[]> {
-  return [...productsData];
-}
-
-export async function getProductBySlug(slug: string): Promise<ProductVenture | null> {
-  const product = productsData.find((p) => p.slug === slug);
-  return product ?? null;
-}
+import { getProducts, getProductBySlug } from '@/data/products';
+export { getProducts, getProductBySlug };
 
 export async function getLabs(): Promise<LabExperiment[]> {
   return [...labsData];

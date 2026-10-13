@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { ProductVenture } from '@/data/types';
-import { VentureCard } from '@/components/ventures/VentureCard';
-import { STATUS_ORDER } from '@/data/status';
+import { ProductCard } from '@/components/products/ProductCard';
 
 interface ProductsFilterViewProps {
   products: ProductVenture[];
@@ -11,7 +10,6 @@ interface ProductsFilterViewProps {
 
 export function ProductsFilterView({ products }: ProductsFilterViewProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
   const categories = [
     'all',
@@ -20,15 +18,13 @@ export function ProductsFilterView({ products }: ProductsFilterViewProps) {
 
   const filteredProducts = products.filter((p) => {
     if (selectedCategory !== 'all' && p.category !== selectedCategory) return false;
-    if (selectedStatus !== 'all' && p.status !== selectedStatus) return false;
     return true;
   });
 
   return (
     <div className="space-y-8">
-      {/* Filters Bar */}
-      <div className="p-4 border border-[var(--border-color)] bg-[var(--surface-elevated)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        {/* Category Filter */}
+      {/* Category Filters Bar */}
+      <div className="p-4 border border-[var(--border-color)] bg-[var(--surface-elevated)] flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-mono-tag text-[10px] text-[var(--stone)] mr-1">
             CATEGORY:
@@ -49,30 +45,15 @@ export function ProductsFilterView({ products }: ProductsFilterViewProps) {
           ))}
         </div>
 
-        {/* Status Filter */}
-        <div className="flex items-center gap-2">
-          <span className="font-mono-tag text-[10px] text-[var(--stone)]">
-            STATUS:
-          </span>
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-2.5 py-1 text-xs font-mono-tag bg-[var(--surface)] border border-[var(--border-color)] text-[var(--text-primary)]"
-          >
-            <option value="all">ALL STATUSES</option>
-            {STATUS_ORDER.map((status) => (
-              <option key={status} value={status}>
-                {status.toUpperCase()}
-              </option>
-            ))}
-          </select>
+        <div className="font-mono-tag text-[10px] text-[var(--stone)]">
+          {filteredProducts.length} ACTIVE {filteredProducts.length === 1 ? 'PRODUCT' : 'PRODUCTS'}
         </div>
       </div>
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
-          <VentureCard key={product.id} venture={product} />
+          <ProductCard key={product.slug} product={product} />
         ))}
       </div>
 

@@ -11,7 +11,7 @@ export const labsData: LabExperiment[] = [
     tagline: 'Zero-cloud semantic search across personal markdown archives.',
     description:
       'Testing browser-native vector embeddings via WebGPU and WASM quantized models to query private local notes without network transit.',
-    featured: true,
+    featured: false,
     featuredOrder: 5,
     tags: ['WebGPU', 'Quantized Models', 'Local AI', 'WASM'],
     startedAt: '2026-Q3',
