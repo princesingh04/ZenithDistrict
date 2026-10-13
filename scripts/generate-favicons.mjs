@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { chromium } from 'playwright';
 import { execSync } from 'child_process';
 

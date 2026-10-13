@@ -1,10 +1,9 @@
 import { brandsData } from '@/data/brands';
-import { productsData } from '@/data/products';
 import { labsData } from '@/data/labs';
 import { divisions } from '@/data/divisions';
 import {
-  BrandVenture,
   ProductVenture,
+  BrandVenture,
   LabExperiment,
   AnyVenture,
   Division,
@@ -23,17 +22,23 @@ export async function getBrandBySlug(slug: string): Promise<BrandVenture | null>
   return brand ?? null;
 }
 
+import { getProducts as getBaseProducts } from '@/data/products';
+
 export async function getProducts(): Promise<ProductVenture[]> {
-  const [custom, deleted] = await Promise.all([getCustomProducts(), getDeletedVentures()]);
+  const [baseProducts, custom, deleted] = await Promise.all([
+    getBaseProducts(),
+    getCustomProducts(),
+    getDeletedVentures(),
+  ]);
   const deletedSet = new Set(deleted.products);
   const customMap = new Map(custom.map((p) => [p.slug, p]));
-  const merged = productsData
+  const merged = baseProducts
     .filter((p) => !deletedSet.has(p.slug))
     .map((p) => customMap.get(p.slug) || p);
 
   for (const c of custom) {
     if (deletedSet.has(c.slug)) continue;
-    if (!productsData.some((p) => p.slug === c.slug)) {
+    if (!baseProducts.some((p) => p.slug === c.slug)) {
       merged.push(c);
     }
   }

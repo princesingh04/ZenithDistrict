@@ -37,6 +37,17 @@ export const STATUS_REGISTRY: Record<VentureStatus, StatusConfig> = {
     description: 'Publicly deployed, serving active users with ongoing maintenance.',
     dotColor: '#059669', // solid emerald
   },
+  live: {
+    label: 'Live',
+    description: 'Publicly deployed, serving active users with ongoing maintenance.',
+    dotColor: '#059669', // solid emerald
+    dotPulse: true,
+  },
+  'coming-soon': {
+    label: 'Building',
+    description: 'Under active development.',
+    dotColor: '#3882F6',
+  },
   Venture: {
     label: 'Venture',
     description: 'Graduated from internal district lab into a standalone sovereign entity.',

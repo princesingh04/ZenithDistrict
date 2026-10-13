@@ -1,21 +1,28 @@
-import { ProductVenture } from './types';
+import { unstable_cache } from 'next/cache';
+import { prisma } from '@/lib/prisma';
+import { ProductStatus as DbProductStatus } from '@prisma/client';
+import { ProductVenture, Product, ProductStatus } from './types';
+
+export type { Product, ProductStatus };
 
 export const productsData: ProductVenture[] = [
   {
-    id: 'prod-01',
     slug: 'i-hate-love-pdf',
     name: 'I Hate Love PDF',
+    description:
+      'A free PDF toolkit designed to make everyday document tasks simpler, faster, and more accessible.',
+    category: 'Productivity / PDF Tools',
+    url: 'https://ihatelovepdf.com/',
+    status: 'live',
+    order: 1,
+    id: 'prod-01',
     division: 'Z-03',
     divisionSlug: 'products',
-    category: 'Web Utilities',
-    status: 'Building',
-    tagline: 'Private, in-browser PDF manipulation without the predatory ads.',
-    description:
-      'A clean, fast suite of browser-native PDF utilities that perform merges, splits, compressions, and page extractions locally without uploading your documents to third-party servers.',
+    tagline: 'Private, in-browser PDF manipulation without predatory ads or file size barriers.',
     longDescription:
       'Most online PDF converters have become bloated with deceptive ads, arbitrary file size paywalls, and questionable privacy policies. I Hate Love PDF runs essential PDF manipulation tasks client-side using WebAssembly and Web Workers, keeping files completely on the user’s machine.',
     featured: true,
-    featuredOrder: 2,
+    featuredOrder: 1,
     tags: ['WebAssembly', 'PDF Utility', 'Client-Side', 'Privacy First'],
     startedAt: '2026-Q2',
     updatedAt: '2026-Q4',
@@ -36,41 +43,37 @@ export const productsData: ProductVenture[] = [
     roadmap: [
       {
         phase: 'Phase 1: Core Operations',
-        status: 'In Progress',
+        status: 'Shipped',
         summary: 'PDF merge, split, rotate, and page reordering.',
       },
       {
         phase: 'Phase 2: Client Optimization',
-        status: 'Planned',
+        status: 'In Progress',
         summary: 'Local image-to-PDF compilation and client-side raster compression.',
-      },
-      {
-        phase: 'Phase 3: Native Desktop Wrapper',
-        status: 'Planned',
-        summary: 'Lightweight offline desktop application for macOS and Windows.',
       },
     ],
     links: {
-      // TODO: replace with live deployment link once domain is connected
-      live: 'https://ihatelovepdf.com', // placeholder link
-      repo: 'https://github.com/ShreyashSrivastavaa/i-hate-love-pdf', // TODO: verify repo visibility
+      live: 'https://ihatelovepdf.com/',
+      repo: 'https://github.com/ShreyashSrivastavaa/i-hate-love-pdf',
     },
   },
   {
-    id: 'prod-02',
     slug: 'product-forum',
     name: 'Product.forum',
+    description:
+      'A platform for discovering and showcasing digital products, tools, and projects built by creators.',
+    category: 'Product Discovery',
+    url: 'https://product.forum',
+    status: 'live',
+    order: 2,
+    id: 'prod-02',
     division: 'Z-03',
     divisionSlug: 'products',
-    category: 'Discovery',
-    status: 'Building',
     tagline: 'Transparent discovery and verification for modern products and businesses.',
-    description:
-      'A structured platform designed for authentic product discovery, verifiable reviews, and signal-driven discussions around newly launched software and ventures.',
     longDescription:
       'Online feedback loops are increasingly polluted by bot upvotes, sponsored placements, and unverified reviews. Product.forum explores a high-trust verification model where discussion is anchored to authentic usage and founder disclosures.',
     featured: true,
-    featuredOrder: 3,
+    featuredOrder: 2,
     tags: ['Community', 'Product Discovery', 'Verification', 'Directory'],
     startedAt: '2026-Q2',
     updatedAt: '2026-Q4',
@@ -90,35 +93,36 @@ export const productsData: ProductVenture[] = [
     roadmap: [
       {
         phase: 'Alpha Prototype',
-        status: 'In Progress',
+        status: 'Shipped',
         summary: 'Core product directory schema and verification pipeline.',
       },
       {
         phase: 'Community Feed',
-        status: 'Planned',
+        status: 'In Progress',
         summary: 'Structured discussion threads and verified customer badge validation.',
       },
     ],
     links: {
-      // TODO: replace with live deployment link
-      live: 'https://product.forum', // placeholder link
+      live: 'https://product.forum',
     },
   },
   {
-    id: 'prod-03',
     slug: 'gitfc',
     name: 'GitFC',
+    description:
+      'A gamified GitHub contributions experience that makes developer activity more engaging and visual.',
+    category: 'Developer Tools',
+    url: 'https://gitfc.vercel.app/',
+    status: 'live',
+    order: 3,
+    id: 'prod-03',
     division: 'Z-03',
     divisionSlug: 'products',
-    category: 'Developer Tools',
-    status: 'Beta',
     tagline: 'Transform GitHub developer profiles into collectible football-style player cards.',
-    description:
-      'A fun, technically sharp utility that ingests GitHub contribution history, repository language distributions, and commit velocity to generate dynamic, collectible digital trading cards.',
     longDescription:
       'GitFC bridges the gap between developer metrics and collectible sports cards. By analyzing public GitHub activity, it computes specialized player stats (e.g., Velocity, Defending codebase, Polyglot rating) and renders printable vector player cards.',
     featured: true,
-    featuredOrder: 4,
+    featuredOrder: 3,
     tags: ['Developer Tool', 'Card Generator', 'GitHub API', 'SVG Rendering'],
     startedAt: '2026-Q1',
     updatedAt: '2026-Q4',
@@ -146,16 +150,116 @@ export const productsData: ProductVenture[] = [
         status: 'In Progress',
         summary: 'Team and organization rosters comparing repository contributors.',
       },
-      {
-        phase: 'Print-on-Demand Integration',
-        status: 'Planned',
-        summary: 'Direct bridge to Z-02 Brands for physical foil card printing.',
-      },
     ],
     links: {
-      // TODO: replace with production link once domain pointed
-      live: 'https://gitfc.dev', // placeholder link
-      repo: 'https://github.com/ShreyashSrivastavaa/gitfc', // TODO: verify repo visibility
+      live: 'https://gitfc.vercel.app/',
+      repo: 'https://github.com/ShreyashSrivastavaa/gitfc',
     },
   },
 ];
+
+/**
+ * Maps a Prisma database product row to the application's ProductVenture interface.
+ * Merges with static config if available to preserve technical architecture notes.
+ */
+function mapDbProductToVenture(dbProduct: {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  url: string;
+  status: DbProductStatus;
+  sortOrder: number;
+}): ProductVenture {
+  const staticFallback = productsData.find((p) => p.slug === dbProduct.slug);
+  const status: ProductStatus = dbProduct.status === 'LIVE' ? 'live' : 'coming-soon';
+
+  return {
+    ...(staticFallback ?? {
+      id: dbProduct.id,
+      division: 'Z-03' as const,
+      divisionSlug: 'products' as const,
+      tagline: dbProduct.description,
+      tags: [dbProduct.category],
+      featured: true,
+      problem: '',
+      solution: '',
+    }),
+    id: dbProduct.id,
+    slug: dbProduct.slug,
+    name: dbProduct.name,
+    description: dbProduct.description,
+    category: dbProduct.category,
+    url: dbProduct.url,
+    status,
+    order: dbProduct.sortOrder,
+    links: {
+      ...staticFallback?.links,
+      live: dbProduct.url,
+    },
+  };
+}
+
+/**
+ * Internal loader that fetches products from PostgreSQL via Prisma.
+ * Catches any connection error and safely falls back to static config.
+ */
+async function fetchProductsFromDatabase(): Promise<ProductVenture[]> {
+  try {
+    const dbProducts = await prisma.product.findMany({
+      where: {
+        status: {
+          in: [DbProductStatus.LIVE, DbProductStatus.COMING_SOON],
+        },
+      },
+      orderBy: {
+        sortOrder: 'asc',
+      },
+    });
+
+    if (dbProducts && dbProducts.length > 0) {
+      return dbProducts.map(mapDbProductToVenture);
+    }
+  } catch (error) {
+    // Server-side only logging: prevents client crashes during DB cold starts or offline state
+    console.error('[getProducts] Database unavailable or unmigrated. Serving static fallback config:', error);
+  }
+
+  // Resilient fallback to static Phase 1 data
+  return [...productsData].sort((a, b) => a.order - b.order);
+}
+
+/**
+ * Cached public query for products.
+ * Uses Next.js incremental cache (tag: 'products', 60-second background revalidation)
+ * so homepage and directory pages load instantly without blocking on database latency.
+ */
+export const getProducts = unstable_cache(
+  fetchProductsFromDatabase,
+  ['zenith-district-products-list'],
+  {
+    revalidate: 60,
+    tags: ['products'],
+  }
+);
+
+/**
+ * Retrieves a single product by slug, querying the DB with safe static fallback.
+ */
+export async function getProductBySlug(slug: string): Promise<ProductVenture | null> {
+  try {
+    const dbProduct = await prisma.product.findUnique({
+      where: { slug },
+    });
+
+    if (dbProduct) {
+      return mapDbProductToVenture(dbProduct);
+    }
+  } catch (error) {
+    console.error(`[getProductBySlug] DB query failed for slug "${slug}". Serving static fallback:`, error);
+  }
+
+  const staticProduct = productsData.find((p) => p.slug === slug);
+  return staticProduct ?? null;
+}

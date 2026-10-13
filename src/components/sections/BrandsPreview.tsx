@@ -2,17 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/layout/SectionHeader';
-import { VentureCard } from '@/components/ventures/VentureCard';
 import { BrandVenture } from '@/data/types';
 import { ArrowRight } from 'lucide-react';
 
 interface BrandsPreviewProps {
-  brands: BrandVenture[];
+  brands?: BrandVenture[];
 }
 
-export function BrandsPreview({ brands }: BrandsPreviewProps) {
-  const firstBrand = brands[0];
-
+export function BrandsPreview({}: BrandsPreviewProps) {
   return (
     <section
       id="brands-section"
@@ -24,57 +21,37 @@ export function BrandsPreview({ brands }: BrandsPreviewProps) {
           index="04"
           title="CONSUMER BRANDS"
           code="Z-02"
-          caption="Independent consumer ventures conceived, manufactured, and operated in-house."
+          caption="Independent consumer ventures conceived and operated in-house."
         />
 
-        {/* Editorial Subtext */}
-        <div className="max-w-2xl mb-12">
-          <p className="text-sm md:text-base text-[var(--muted-text)] leading-relaxed">
-            The Brands division incubates standalone physical and consumer product companies. Rather than single-product drops, we build sovereign brand properties with their own identities, supply chains, and customer bases.
-          </p>
-        </div>
-
-        {/* Developing Neighborhood Grid (Active Brand + Plot Unassigned) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* First Apparel Brand Card */}
-          {firstBrand && <VentureCard venture={firstBrand} />}
-
-          {/* Plot Unassigned Placeholder 1 */}
-          <VentureCard venture={firstBrand} isPlaceholder={true} />
-
-          {/* Plot Unassigned Placeholder 2 */}
-          <div className="hidden lg:block">
-            <VentureCard venture={firstBrand} isPlaceholder={true} />
-          </div>
-        </div>
-
-        {/* Active Collection 01 Spotlight */}
-        {firstBrand && (
-          <div className="mt-6 p-4 border border-[var(--border-color)] bg-[var(--surface-elevated)]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono-tag text-xs">
-            <div className="flex items-center gap-2 text-[var(--text-primary)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--signal)]" />
-              <span>COLLECTION 01 IN SAMPLING</span>
-              <span className="text-[var(--stone)]">— 4 Architectural Silhouettes (ZB-01–04)</span>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+          <div className="max-w-2xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 font-mono-tag text-[10px] tracking-wider uppercase border border-[var(--border-color)] bg-[var(--surface-elevated)] text-[var(--text-primary)] select-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--signal)] animate-pulse" aria-hidden="true" />
+              <span>UNDER DEVELOPMENT</span>
             </div>
-            <Link
-              href={`/brands/${firstBrand.slug}/shop`}
-              className="text-[var(--text-primary)] hover:text-[var(--signal)] transition-colors flex items-center gap-1.5 font-medium"
-            >
-              <span>ENTER ATELIER SHOP</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        )}
 
-        <div className="pt-8 flex items-center justify-between font-mono-tag text-xs text-[var(--muted-text)]">
-          <span>ONE VENTURE HOUSE. MANY SOVEREIGN BRANDS.</span>
+            <h3 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-[var(--text-primary)]">
+              Brands, Coming Soon.
+            </h3>
+
+            <p className="text-sm md:text-base text-[var(--muted-text)] leading-relaxed">
+              We are building brands with a purpose. Our first ventures are taking shape, and this is only the beginning.
+            </p>
+          </div>
+
           <Link
             href="/brands"
-            className="hover:text-[var(--signal)] flex items-center gap-1 font-semibold"
+            className="inline-flex items-center gap-2 px-6 py-3 border border-[var(--border-color)] hover:border-[var(--signal)] hover:text-[var(--signal)] font-mono-tag text-xs tracking-wider uppercase transition-colors shrink-0"
           >
-            <span>VIEW BRANDS DIRECTORY</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>Learn More</span>
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
+        </div>
+
+        <div className="pt-8 flex items-center justify-between font-mono-tag text-xs text-[var(--muted-text)] hairline-border-t">
+          <span>ONE VENTURE HOUSE. MANY SOVEREIGN BRANDS.</span>
+          <span>DISTRICT SECTOR NE</span>
         </div>
       </Container>
     </section>

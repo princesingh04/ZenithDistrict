@@ -1,51 +1,26 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { Container } from '@/components/layout/Container';
-import { SectionHeader } from '@/components/layout/SectionHeader';
-import { LabsBoard } from '@/components/ventures/LabsBoard';
-import { HyperspeedLabCard } from '@/components/ventures/HyperspeedLabCard';
-import { getLabs } from '@/lib/content';
+import { ComingSoon } from '@/components/ui/ComingSoon';
 import { constructMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = constructMetadata({
-  title: 'Labs & R&D (Z-04) // Lifecycle Board',
+  title: 'Labs, Coming Soon // ZenithDistrict',
   description:
-    'The experimental division of ZenithDistrict. Active prototypes, technical hypotheses, and open research exploring what deserves to become a product or sovereign venture.',
+    'A space for experiments, ideas, and digital products. New things are in the works.',
   path: '/labs',
 });
 
-export default async function LabsPage() {
-  const experiments = await getLabs();
-
+export default function LabsPage() {
   return (
-    <div className="py-12 md:py-20 space-y-16">
-      <Container>
-        <SectionHeader
-          index="Z-04"
-          title="LABS & EXPERIMENTS"
-          code="KANBAN"
-          caption="Active technical prototyping and early hypotheses undergoing lifecycle stress-testing."
-        />
-
-        <div className="space-y-16">
-          <LabsBoard experiments={experiments} />
-
-          <div className="space-y-6 pt-8 hairline-border-t">
-            <SectionHeader
-              index="R&D"
-              title="CAD ACCELERATOR LAB"
-              code="LAB_06"
-              caption="Interactive WebGL raymarching and post-processing testbed running live in the browser."
-            />
-            <HyperspeedLabCard />
-          </div>
-        </div>
-
-        <div className="pt-12 hairline-border-t flex items-center justify-between font-mono-tag text-xs text-[var(--stone)]">
-          <span>GRADUATION MODEL: IDEA → EXPLORING → BUILDING → BETA → LIVE → VENTURE</span>
-          <span>DISTRICT SECTOR SE</span>
-        </div>
-      </Container>
-    </div>
+    <ComingSoon
+      divisionCode="Z-04"
+      divisionTitle="Labs & Experiments"
+      sector="DISTRICT SECTOR SE"
+      title="Labs, Coming Soon."
+      description="A space for experiments, ideas, and digital products. New things are in the works."
+      statusLabel="UNDER DEVELOPMENT"
+      homeHref="/"
+      liveProductsHref="/#live-products"
+    />
   );
 }

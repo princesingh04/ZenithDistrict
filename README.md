@@ -300,3 +300,41 @@ All data access is mediated through `src/lib/content.ts`. To migrate to Sanity, 
 npm run dev
 ```
 Visit `http://localhost:3000`.
+
+---
+
+## Database Setup & Persistence (PostgreSQL + Prisma)
+
+ZenithDistrict uses PostgreSQL via Prisma for persistent product data and division section statuses, built for Vercel Serverless with safe static fallbacks.
+
+### 1. Provisioning PostgreSQL (Neon or Vercel Postgres)
+1. In **Neon** ([neon.tech](https://neon.tech)) or **Vercel Postgres**:
+   - Create a project / database.
+   - Copy connection strings:
+     - **Pooled connection string** (e.g., port 6543 / pooler) -> `DATABASE_URL`
+     - **Direct connection string** (e.g., port 5432 / direct) -> `DIRECT_URL` (used for migrations)
+
+### 2. Environment Variables
+Add to `.env.local` (local) and Vercel Project Settings (Production):
+```env
+DATABASE_URL="postgresql://user:password@ep-xxx-pooler.region.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://user:password@ep-xxx.region.neon.tech/neondb?sslmode=require"
+```
+*(See `.env.example` for reference. Never commit real credentials.)*
+
+### 3. Local Migrations & Seeding
+```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Deploy migrations to your PostgreSQL instance
+npx prisma migrate deploy
+
+# Seed initial products (I Hate Love PDF, Product.forum, GitFC) and site sections
+npm run db:seed
+```
+
+### 4. What Runs on Vercel
+- **Build Step**: Vercel runs `npm run build` which executes `prisma generate && next build` (and `postinstall: prisma generate`).
+- **Migrations**: Run `npx prisma migrate deploy` from your terminal or CI against your production database.
+- **Fail-Safe Serverless Architecture**: If the database is offline or unmigrated, `getProducts()` logs server-side and transparently serves the static fallback config. Public pages never crash.

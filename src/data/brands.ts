@@ -21,7 +21,7 @@ export const brandsData: BrandVenture[] = [
       'The official ZenithDistrict physical apparel label combining architectural typography, heavyweight organic textiles, and zero-inventory on-demand fulfillment.',
     longDescription:
       'ZenithDistrict Apparel is our sovereign physical label. Rather than stocking large upfront production runs, we engineer structured heavyweight garments produced strictly to order with zero speculative inventory.',
-    featured: true,
+    featured: false,
     featuredOrder: 1,
     tags: ['Apparel', 'Print-on-Demand', 'Textiles', 'D2C'],
     startedAt: '2026-Q1',

@@ -48,10 +48,12 @@ export function ProductGallery({ product, activeColorway }: ProductGalleryProps)
     };
   }, [lightboxOpen]);
 
-  // Reset active index when colorway changes
-  useEffect(() => {
+  // Reset active index when colorway changes during render
+  const [prevColorwayId, setPrevColorwayId] = useState(activeColorway.id);
+  if (prevColorwayId !== activeColorway.id) {
+    setPrevColorwayId(activeColorway.id);
     setActiveIndex(0);
-  }, [activeColorway.id]);
+  }
 
   // Touch swipe handling
   const [touchStart, setTouchStart] = useState<number | null>(null);

@@ -3,13 +3,13 @@ import { Metadata } from 'next';
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/layout/SectionHeader';
 import { ProductsFilterView } from '@/components/products/ProductsFilterView';
-import { getProducts } from '@/lib/content';
+import { getProducts } from '@/data/products';
 import { constructMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = constructMetadata({
-  title: 'Software Products (Z-03) // Digital Utilities & Tools',
+  title: 'Live Products // ZenithDistrict (Z-03)',
   description:
-    'Independent digital products, SaaS applications, browser utilities, and developer tools built and operated by ZenithDistrict.',
+    'Independent products built to solve real problems. Explore what is already live.',
   path: '/products',
 });
 
@@ -21,24 +21,24 @@ export default async function ProductsPage() {
       <Container>
         <SectionHeader
           index="Z-03"
-          title="SOFTWARE PRODUCTS"
-          code="DIRECTORY"
-          caption="Independent software tools and developer utilities built to solve specific technical friction."
+          title="Live Products"
+          code="PORTFOLIO"
+          caption="Independent software tools and utilities built to solve specific technical friction."
         />
 
         <div className="max-w-3xl space-y-4 mb-12">
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[var(--text-primary)]">
-            Focused software engineered for durability.
+            Live Products
           </h1>
-          <p className="text-base text-[var(--muted-text)] leading-relaxed">
-            Every product in this catalog was created because existing tools were bloated, intrusive, or unnecessarily complex. We build lightweight, privacy-respecting software with zero artificial metrics.
+          <p className="text-base sm:text-lg text-[var(--muted-text)] leading-relaxed">
+            Independent products built to solve real problems. Explore what is already live.
           </p>
         </div>
 
         <ProductsFilterView products={products} />
 
         <div className="pt-12 hairline-border-t flex items-center justify-between font-mono-tag text-xs text-[var(--stone)]">
-          <span>ALL TOOLS CURRENTLY IN ACTIVE DOGFOODING & PUBLIC RELEASE</span>
+          <span>ALL TOOLS CURRENTLY DEPLOYED & IN PUBLIC RELEASE</span>
           <span>DISTRICT SECTOR SW</span>
         </div>
       </Container>
