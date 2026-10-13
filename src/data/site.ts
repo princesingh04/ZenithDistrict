@@ -9,7 +9,7 @@ export const siteConfig: SiteConfig = {
   description:
     'ZenithDistrict is an independent venture house. We design and build software, launch consumer brands, and run experiments, taking the strongest ideas from first sketch to standalone company.',
   establishedYear: 2026,
-  contactEmail: 'inquiries@zenithdistrict.com', // TODO: replace with production mailbox
+  contactEmail: 'shreyashsr2004@gmail.com',
   location: 'Remote & Distributed',
   statusHeadline: 'One district. Many ventures.',
   shop: {
