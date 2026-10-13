@@ -6,6 +6,36 @@ import { useRouter } from 'next/navigation';
 import { ApparelProduct } from '@/data/types';
 import { PlusCircle, Trash2, ExternalLink, RefreshCw, Copy, Check, Edit3 } from 'lucide-react';
 
+function getAvailabilityBadge(status: string) {
+  const s = status.toLowerCase();
+  if (s === 'available') {
+    return {
+      dot: 'bg-emerald-500',
+      badge: 'text-emerald-600 dark:text-emerald-400 border-emerald-500/25 bg-emerald-500/5',
+      label: status,
+    };
+  }
+  if (s === 'preorder') {
+    return {
+      dot: 'bg-amber-500 animate-pulse',
+      badge: 'text-amber-600 dark:text-amber-400 border-amber-500/25 bg-amber-500/5',
+      label: status,
+    };
+  }
+  if (s === 'sampling') {
+    return {
+      dot: 'bg-[var(--signal)]',
+      badge: 'text-[var(--signal)] border-[var(--signal)]/25 bg-[var(--signal)]/5',
+      label: status,
+    };
+  }
+  return {
+    dot: 'bg-[var(--stone)]',
+    badge: 'text-[var(--stone)] border-[var(--border-color)] bg-[var(--surface-elevated)]',
+    label: status,
+  };
+}
+
 interface ApparelCatalogClientProps {
   initialProducts: (ApparelProduct & { isCustom?: boolean })[];
 }
@@ -67,62 +97,75 @@ export function ApparelCatalogClient({ initialProducts }: ApparelCatalogClientPr
         {products.map((p) => (
           <div
             key={p.slug}
-            className="border border-[var(--border-color)] bg-[var(--surface-card)] flex flex-col justify-between hover:border-[var(--signal)] transition-colors"
+            className="group border border-[var(--border-color)] bg-[var(--surface-card)] flex flex-col justify-between hover:border-[var(--text-primary)]/40 transition-all overflow-hidden"
           >
             {/* Card Header */}
-            <div className="p-5 border-b border-[var(--border-color)] space-y-3">
+            <div className="p-5 sm:p-6 border-b border-[var(--border-color)] space-y-3">
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="font-bold text-[var(--signal)] tracking-wider">{p.code}</span>
+                <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                  <span className="text-[9px] uppercase tracking-widest text-[var(--stone)]">SPEC //</span>
+                  <span className="font-bold text-[var(--text-primary)] group-hover:text-[var(--signal)] tracking-wider uppercase transition-colors">
+                    {p.code}
+                  </span>
+                </div>
                 <div className="flex items-center gap-2">
                   {p.isCustom ? (
-                    <span className="px-1.5 py-0.5 text-[9px] uppercase font-mono tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
+                    <span className="px-2 py-0.5 text-[9px] uppercase font-mono tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
                       DYNAMIC
                     </span>
                   ) : (
-                    <span className="px-1.5 py-0.5 text-[9px] uppercase font-mono tracking-widest bg-[var(--surface-elevated)] text-[var(--stone)] border border-[var(--border-color)]">
+                    <span className="px-2 py-0.5 text-[9px] uppercase font-mono tracking-widest bg-[var(--surface-elevated)] text-[var(--stone)] border border-[var(--border-color)]">
                       BASELINE
                     </span>
                   )}
-                  <span className="px-1.5 py-0.5 text-[9px] uppercase font-mono tracking-widest bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-color)]">
-                    {p.availability}
-                  </span>
+                  {(() => {
+                    const conf = getAvailabilityBadge(p.availability);
+                    return (
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest border ${conf.badge}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${conf.dot}`} />
+                        <span>{conf.label}</span>
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
 
               <div>
-                <h3 className="font-sans font-medium text-base text-[var(--text-primary)]">{p.name}</h3>
-                <p className="text-xs text-[var(--muted-text)] line-clamp-2 mt-1 leading-relaxed">
+                <h3 className="font-sans font-medium text-lg text-[var(--text-primary)] tracking-tight group-hover:text-[var(--signal)] transition-colors">
+                  {p.name}
+                </h3>
+                <p className="text-xs text-[var(--muted-text)] line-clamp-2 mt-1.5 leading-relaxed min-h-[2.5rem]">
                   {p.description}
                 </p>
               </div>
             </div>
 
             {/* Spec Details */}
-            <div className="p-5 space-y-3 text-xs font-mono">
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <div>
-                  <span className="text-[var(--stone)] block text-[10px] font-mono-tag uppercase">Silhouette</span>
-                  <span className="text-[var(--text-primary)] truncate block">{p.silhouette}</span>
+            <div className="p-5 sm:p-6 space-y-4 text-xs font-mono flex-1">
+              <div className="grid grid-cols-2 gap-3 text-[11px]">
+                <div className="p-2.5 bg-[var(--surface-elevated)] border border-[var(--border-color)]">
+                  <span className="text-[var(--stone)] block text-[9px] font-mono-tag uppercase tracking-wider mb-0.5">Silhouette</span>
+                  <span className="text-[var(--text-primary)] font-medium truncate block">{p.silhouette}</span>
                 </div>
-                <div>
-                  <span className="text-[var(--stone)] block text-[10px] font-mono-tag uppercase">Print Type</span>
-                  <span className="text-[var(--text-primary)] truncate block">{p.print.type}</span>
+                <div className="p-2.5 bg-[var(--surface-elevated)] border border-[var(--border-color)]">
+                  <span className="text-[var(--stone)] block text-[9px] font-mono-tag uppercase tracking-wider mb-0.5">Print Type</span>
+                  <span className="text-[var(--text-primary)] font-medium truncate block">{p.print.type}</span>
                 </div>
-                <div>
-                  <span className="text-[var(--stone)] block text-[10px] font-mono-tag uppercase">Fabric</span>
-                  <span className="text-[var(--text-primary)] truncate block">
+                <div className="p-2.5 bg-[var(--surface-elevated)] border border-[var(--border-color)]">
+                  <span className="text-[var(--stone)] block text-[9px] font-mono-tag uppercase tracking-wider mb-0.5">Fabric</span>
+                  <span className="text-[var(--text-primary)] font-medium truncate block">
                     {p.fabric.gsm ? `${p.fabric.gsm} GSM` : 'Unconfirmed'}
                   </span>
                 </div>
-                <div>
-                  <span className="text-[var(--stone)] block text-[10px] font-mono-tag uppercase">Price</span>
+                <div className="p-2.5 bg-[var(--surface-elevated)] border border-[var(--border-color)]">
+                  <span className="text-[var(--stone)] block text-[9px] font-mono-tag uppercase tracking-wider mb-0.5">Price</span>
                   <span className="text-[var(--text-primary)] font-bold block">₹{p.price.toLocaleString()}</span>
                 </div>
               </div>
 
               {/* Colorway Swatches */}
               <div className="pt-2 border-t border-[var(--border-color)]">
-                <span className="text-[var(--stone)] block text-[10px] font-mono-tag uppercase mb-1.5">
+                <span className="text-[var(--stone)] block text-[9px] font-mono-tag uppercase tracking-wider mb-2">
                   Colorways ({p.colorways.length})
                 </span>
                 <div className="flex items-center gap-2">
@@ -139,46 +182,44 @@ export function ApparelCatalogClient({ initialProducts }: ApparelCatalogClientPr
             </div>
 
             {/* Actions Bar */}
-            <div className="p-3 bg-[var(--surface-elevated)] border-t border-[var(--border-color)] flex items-center justify-between text-[11px] font-mono-tag">
+            <div className="px-5 py-3.5 bg-[var(--surface-elevated)]/60 border-t border-[var(--border-color)] flex items-center justify-between gap-2 text-[10px] font-mono-tag mt-auto">
               <Link
                 href={`/brands/zenith-district/shop/${p.slug}`}
                 target="_blank"
-                className="text-[var(--stone)] hover:text-[var(--signal)] flex items-center gap-1 transition-colors"
+                className="px-2 py-1 text-[var(--stone)] hover:text-[var(--text-primary)] border border-transparent hover:border-[var(--border-color)] flex items-center gap-1 transition-all"
+                title="Open storefront product page"
               >
                 <span>STOREFRONT</span>
                 <ExternalLink className="w-3 h-3" />
               </Link>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <Link
                   href={`/admin/apparel/new?edit=${p.slug}`}
-                  className="px-2 py-1 text-[var(--signal)] hover:text-white border border-[var(--signal)]/40 hover:bg-[var(--signal)] flex items-center gap-1 transition-colors cursor-pointer"
+                  className="px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-[var(--text-primary)] hover:text-white hover:bg-[var(--text-primary)] border border-[var(--border-color)] hover:border-[var(--text-primary)] flex items-center gap-1.5 transition-all cursor-pointer"
                   title="Edit garment specification"
                 >
                   <Edit3 className="w-3 h-3" />
-                  <span>EDIT</span>
+                  <span>EDIT SPEC</span>
                 </Link>
 
                 <button
                   onClick={() => handleCopyTs(p)}
-                  className="px-2 py-1 text-[var(--stone)] hover:text-[var(--text-primary)] border border-[var(--border-color)] hover:border-[var(--text-primary)] flex items-center gap-1 transition-colors cursor-pointer"
+                  className="p-1.5 text-[var(--stone)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] border border-transparent hover:border-[var(--border-color)] flex items-center transition-all cursor-pointer"
                   title="Copy JSON Spec"
                 >
-                  {copiedSlug === p.slug ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                  <span>{copiedSlug === p.slug ? 'COPIED' : 'COPY'}</span>
+                  {copiedSlug === p.slug ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
 
-                {p.isCustom && (
-                  <button
-                    onClick={() => handleDelete(p.slug)}
-                    disabled={deletingSlug === p.slug}
-                    className="px-2 py-1 text-red-500 hover:text-red-400 border border-red-500/30 hover:border-red-500 flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-40"
-                    title="Delete product"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    <span>DELETE</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => handleDelete(p.slug)}
+                  disabled={deletingSlug === p.slug}
+                  className="p-1.5 text-[var(--stone)] hover:text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 flex items-center transition-all cursor-pointer disabled:opacity-40"
+                  title="Delete product"
+                  aria-label={`Delete ${p.name}`}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </div>

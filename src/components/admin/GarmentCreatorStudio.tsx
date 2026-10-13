@@ -26,6 +26,7 @@ import {
   AlertCircle,
   RotateCcw,
 } from 'lucide-react';
+import { ImageUploadField } from './ImageUploadField';
 
 const SILHOUETTES: { id: GarmentSilhouette; label: string }[] = [
   { id: 'oversized-tee', label: 'Oversized Tee' },
@@ -81,6 +82,7 @@ function GarmentCreatorStudioInner() {
   const [detailsText, setDetailsText] = useState(
     '280 GSM heavy combed cotton single jersey\nTwin-needle reinforced crew neck\nHigh-density vector print\nProduced to order via Qikink'
   );
+  const [realImage, setRealImage] = useState<string>('');
 
   // Colorways
   const [colorways, setColorways] = useState<GarmentColorway[]>([
@@ -94,12 +96,36 @@ function GarmentCreatorStudioInner() {
 
   // Preview View
   const [activeView, setActiveView] = useState<GarmentView>('front');
+  const [mobileViewTab, setMobileViewTab] = useState<'specs' | 'preview'>('specs');
 
   // Submission / Export states
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleDeleteProduct = async () => {
+    if (!confirm(`Are you sure you want to permanently delete "${name}" (${code})? This will remove it from the catalog and storefront.`)) return;
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/products?slug=${encodeURIComponent(slug)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        router.push('/admin/apparel');
+        router.refresh();
+      } else {
+        setErrorMsg(data.error || 'Failed to delete garment.');
+      }
+    } catch {
+      setErrorMsg('Network error while deleting garment.');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // Derive active colorway for preview
   const activeColorway = colorways.find((c) => c.id === selectedColorwayId) || colorways[0] || PRESET_COLORS[0];
@@ -141,6 +167,7 @@ function GarmentCreatorStudioInner() {
             if (found.sizes && found.sizes.length > 0) {
               setSelectedSizes(found.sizes);
             }
+            setRealImage(found.realImage || '');
             setIsEditing(true);
           }
         }
@@ -229,6 +256,7 @@ function GarmentCreatorStudioInner() {
         .split('\n')
         .map((s) => s.trim())
         .filter(Boolean),
+      realImage: realImage.trim() || undefined,
       productionNote:
         'Produced strictly to order via Qikink. Zero speculative warehouse inventory. Lead times reflect custom printing and individual quality check before dispatch.',
     };
@@ -311,32 +339,45 @@ function GarmentCreatorStudioInner() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={handleCopyCode}
-            className="px-4 py-2 border border-[var(--border-color)] text-xs font-mono-tag uppercase tracking-wider hover:border-[var(--text-primary)] transition-colors flex items-center gap-2 cursor-pointer"
+            className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 border border-[var(--border-color)] text-xs font-mono-tag uppercase tracking-wider hover:border-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             title="Copy TypeScript snippet for src/data/apparel.ts"
           >
             {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copiedCode ? 'TS SNIPPET COPIED' : 'COPY TS CODE'}</span>
+            <span>{copiedCode ? 'TS COPIED' : 'COPY TS'}</span>
           </button>
+
+          {isEditing && (
+            <button
+              type="button"
+              onClick={handleDeleteProduct}
+              disabled={deleting}
+              className="px-3 py-2 border border-red-500/30 text-red-500 hover:border-red-500 hover:bg-red-500/10 text-xs font-mono-tag uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+              title="Delete this garment from catalog"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{deleting ? 'DELETING...' : 'DELETE'}</span>
+            </button>
+          )}
 
           <button
             onClick={handlePublish}
             disabled={submitting}
-            className="px-5 py-2 bg-[var(--text-primary)] text-[var(--bg-page)] text-xs font-mono-tag uppercase tracking-wider hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+            className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 bg-[var(--text-primary)] text-[var(--bg-page)] text-xs font-mono-tag uppercase tracking-wider hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {submitting ? (
               <span>SAVING...</span>
             ) : savedSuccess ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span>SAVED TO CATALOG</span>
+                <span>SAVED</span>
               </>
             ) : (
               <>
                 <Save className="w-3.5 h-3.5" />
-                <span>{isEditing ? 'UPDATE STORE SPEC' : 'PUBLISH TO STORE'}</span>
+                <span>{isEditing ? 'UPDATE SPEC' : 'PUBLISH'}</span>
               </>
             )}
           </button>
@@ -350,10 +391,37 @@ function GarmentCreatorStudioInner() {
         </div>
       )}
 
+      {/* Mobile Tab Switcher (Specs vs Live Preview) */}
+      <div className="lg:hidden flex border border-[var(--border-color)] bg-[var(--surface-elevated)] p-1 text-xs font-mono">
+        <button
+          type="button"
+          onClick={() => setMobileViewTab('specs')}
+          className={`flex-1 py-2 text-center font-mono-tag uppercase tracking-wider transition-colors cursor-pointer ${
+            mobileViewTab === 'specs'
+              ? 'bg-[var(--text-primary)] text-[var(--bg-page)] font-bold'
+              : 'text-[var(--stone)] hover:text-[var(--text-primary)]'
+          }`}
+        >
+          SPECS FORM (06)
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileViewTab('preview')}
+          className={`flex-1 py-2 text-center font-mono-tag uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+            mobileViewTab === 'preview'
+              ? 'bg-[var(--text-primary)] text-[var(--bg-page)] font-bold'
+              : 'text-[var(--stone)] hover:text-[var(--text-primary)]'
+          }`}
+        >
+          <Eye className="w-3.5 h-3.5" />
+          <span>{realImage ? 'PHOTO PREVIEW' : 'CAD SHADER'}</span>
+        </button>
+      </div>
+
       {/* 2-Column Studio Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Form: Product Specs (7 Columns) */}
-        <div className="lg:col-span-7 space-y-8">
+        <div className={`space-y-8 lg:col-span-7 ${mobileViewTab === 'preview' ? 'hidden lg:block' : 'block'}`}>
           {/* Section 1: Identification */}
           <div className="p-6 border border-[var(--border-color)] bg-[var(--surface-card)] space-y-4">
             <span className="font-mono-tag text-[10px] text-[var(--stone)] uppercase tracking-wider block">
@@ -671,83 +739,171 @@ function GarmentCreatorStudioInner() {
               />
             </div>
           </div>
+
+          {/* Section 6: Real Photography & Studio Mockup Asset (Optional) */}
+          <div className="p-6 border border-[var(--border-color)] bg-[var(--surface-card)] space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="font-mono-tag text-[10px] text-[var(--stone)] uppercase tracking-wider block">
+                [SPEC 06 // REAL PHOTOGRAPHY & STUDIO MOCKUP ASSET (OPTIONAL)]
+              </span>
+              {realImage && (
+                <button
+                  type="button"
+                  onClick={() => setRealImage('')}
+                  className="text-[10px] font-mono text-red-500 hover:underline cursor-pointer"
+                >
+                  RESET TO VECTOR CAD
+                </button>
+              )}
+            </div>
+
+            <ImageUploadField
+              value={realImage}
+              onChange={setRealImage}
+              label="Flat-lay Mockup / Real Photography"
+              hint="Upload high-res photoshoot, flat-lay, or POD mockup renders (PNG/JPG/WEBP up to 8MB). When provided, seamlessly overrides vector CAD in catalog and product pages."
+              aspectRatio="aspect-4/5"
+              placeholder="https://... or upload local garment asset"
+            />
+          </div>
+
+          {/* Form Bottom Action Bar */}
+          <div className="p-5 border border-[var(--border-color)] bg-[var(--surface-card)] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <div className="text-xs font-mono font-semibold text-[var(--text-primary)]">
+                {isEditing ? `UPDATE SPECIFICATION // ${code}` : 'READY TO PUBLISH NEW GARMENT'}
+              </div>
+              <div className="text-[10px] font-mono text-[var(--stone)] mt-0.5">
+                {isEditing ? 'Saves edits directly to live store catalog & PDP.' : 'Registers garment into custom catalog and storefront.'}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                className="flex-1 sm:flex-initial px-4 py-2.5 border border-[var(--border-color)] text-xs font-mono-tag uppercase tracking-wider hover:border-[var(--text-primary)] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedCode ? 'TS COPIED' : 'COPY TS CODE'}</span>
+              </button>
+
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={handleDeleteProduct}
+                  disabled={deleting}
+                  className="px-4 py-2.5 border border-red-500/40 text-red-500 hover:bg-red-500/10 text-xs font-mono-tag uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  title="Delete garment"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{deleting ? 'DELETING...' : 'DELETE'}</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handlePublish}
+                disabled={submitting}
+                className="flex-1 sm:flex-initial px-6 py-2.5 bg-[var(--signal)] text-white text-xs font-mono-tag uppercase tracking-wider hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm"
+              >
+                {submitting ? (
+                  <span>SAVING...</span>
+                ) : savedSuccess ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-300" />
+                    <span>SAVED TO CATALOG</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>{isEditing ? 'SAVE & UPDATE PRODUCT' : 'PUBLISH TO STORE'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Right Column: Live Interactive CAD Garment Preview (5 Columns - Sticky) */}
-        <div className="lg:col-span-5 sticky top-24 space-y-4">
-          <div className="border border-[var(--border-color)] bg-[var(--surface-card)] p-5 space-y-4">
+        {/* Right Column: Live Interactive CAD Garment Preview (5 Columns - Sticky on desktop) */}
+        <div className={`space-y-4 lg:col-span-5 lg:sticky lg:top-24 ${mobileViewTab === 'specs' ? 'hidden lg:block' : 'block'}`}>
+          <div className="border border-[var(--border-color)] bg-[var(--surface-card)] p-4 sm:p-5 space-y-4">
             {/* Preview Header & View Switcher */}
             <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
               <div className="flex items-center gap-2">
                 <Eye className="w-3.5 h-3.5 text-[var(--signal)]" />
                 <span className="text-[11px] font-mono-tag uppercase tracking-wider font-semibold text-[var(--text-primary)]">
-                  LIVE VECTOR CAD RENDER
+                  {realImage ? 'REAL PHOTOGRAPHY PREVIEW' : 'LIVE VECTOR CAD RENDER'}
                 </span>
               </div>
 
               {/* Front/Back/Detail Toggle */}
-              <div className="flex items-center gap-1 font-mono text-[10px]">
-                <button
-                  type="button"
-                  onClick={() => setActiveView('front')}
-                  className={`px-2 py-1 border transition-colors cursor-pointer ${
-                    activeView === 'front'
-                      ? 'border-[var(--signal)] bg-[var(--signal)] text-white'
-                      : 'border-[var(--border-color)] text-[var(--stone)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  FRONT
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveView('back')}
-                  className={`px-2 py-1 border transition-colors cursor-pointer ${
-                    activeView === 'back'
-                      ? 'border-[var(--signal)] bg-[var(--signal)] text-white'
-                      : 'border-[var(--border-color)] text-[var(--stone)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  BACK
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveView('detail-print')}
-                  className={`px-2 py-1 border transition-colors cursor-pointer ${
-                    activeView === 'detail-print'
-                      ? 'border-[var(--signal)] bg-[var(--signal)] text-white'
-                      : 'border-[var(--border-color)] text-[var(--stone)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  CROP
-                </button>
-              </div>
-            </div>
-
-            {/* Active Colorway Selector on Preview */}
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-[10px] text-[var(--stone)] uppercase font-mono-tag">Preview Fabric:</span>
-              <div className="flex items-center gap-2">
-                {colorways.map((cw) => (
+              {!realImage && (
+                <div className="flex items-center gap-1 font-mono text-[10px]">
                   <button
-                    key={cw.id}
                     type="button"
-                    onClick={() => setSelectedColorwayId(cw.id)}
-                    className={`w-5 h-5 border transition-all cursor-pointer ${
-                      selectedColorwayId === cw.id
-                        ? 'border-[var(--signal)] scale-110 ring-1 ring-[var(--signal)]'
-                        : 'border-[var(--border-color)] opacity-70'
+                    onClick={() => setActiveView('front')}
+                    className={`px-2 py-1 border transition-colors cursor-pointer ${
+                      activeView === 'front'
+                        ? 'border-[var(--signal)] bg-[var(--signal)] text-white'
+                        : 'border-[var(--border-color)] text-[var(--stone)] hover:text-[var(--text-primary)]'
                     }`}
-                    style={{ backgroundColor: cw.hex }}
-                    title={cw.label}
-                  />
-                ))}
-                <span className="text-[11px] text-[var(--text-primary)] font-semibold ml-1">
-                  {activeColorway.label}
-                </span>
-              </div>
+                  >
+                    FRONT
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('back')}
+                    className={`px-2 py-1 border transition-colors cursor-pointer ${
+                      activeView === 'back'
+                        ? 'border-[var(--signal)] bg-[var(--signal)] text-white'
+                        : 'border-[var(--border-color)] text-[var(--stone)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    BACK
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('detail-print')}
+                    className={`px-2 py-1 border transition-colors cursor-pointer ${
+                      activeView === 'detail-print'
+                        ? 'border-[var(--signal)] bg-[var(--signal)] text-white'
+                        : 'border-[var(--border-color)] text-[var(--stone)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    CROP
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* The Actual Real <GarmentMock /> SVG Renderer */}
+            {/* Active Colorway Selector on Preview (When in CAD mode) */}
+            {!realImage && (
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-[10px] text-[var(--stone)] uppercase font-mono-tag">Preview Fabric:</span>
+                <div className="flex items-center gap-2">
+                  {colorways.map((cw) => (
+                    <button
+                      key={cw.id}
+                      type="button"
+                      onClick={() => setSelectedColorwayId(cw.id)}
+                      className={`w-5 h-5 border transition-all cursor-pointer ${
+                        selectedColorwayId === cw.id
+                          ? 'border-[var(--signal)] scale-110 ring-1 ring-[var(--signal)]'
+                          : 'border-[var(--border-color)] opacity-70'
+                      }`}
+                      style={{ backgroundColor: cw.hex }}
+                      title={cw.label}
+                    />
+                  ))}
+                  <span className="text-[11px] text-[var(--text-primary)] font-semibold ml-1">
+                    {activeColorway.label}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* The Actual Real <GarmentMock /> SVG Renderer / Photography Override */}
             <div className="border border-[var(--border-color)] bg-[var(--bg-page)] relative aspect-4/5 w-full flex items-center justify-center overflow-hidden">
               <GarmentMock
                 silhouette={silhouette}
@@ -758,12 +914,19 @@ function GarmentCreatorStudioInner() {
                   frontPlacement,
                   backPlacement,
                 }}
+                realImage={realImage.trim() || undefined}
                 className="w-full h-full"
               />
             </div>
 
             {/* CAD Telemetry Diagnostics */}
             <div className="p-3 bg-[var(--surface-elevated)] border border-[var(--border-color)] text-[10px] font-mono space-y-1.5">
+              <div className="flex justify-between text-[var(--stone)]">
+                <span>RENDER MODE:</span>
+                <span className={`uppercase font-bold ${realImage ? 'text-[var(--signal)]' : 'text-[var(--text-primary)]'}`}>
+                  {realImage ? 'PHOTOGRAPHY ASSET' : 'VECTOR CAD SHADER'}
+                </span>
+              </div>
               <div className="flex justify-between text-[var(--stone)]">
                 <span>CAD SILHOUETTE:</span>
                 <span className="text-[var(--text-primary)] uppercase">{silhouette}</span>
@@ -781,6 +944,37 @@ function GarmentCreatorStudioInner() {
                 <span className="text-[var(--signal)] font-bold">₹{price.toLocaleString()}</span>
               </div>
             </div>
+
+            {/* Quick Sticky Save Action in Preview Column */}
+            <button
+              type="button"
+              onClick={handlePublish}
+              disabled={submitting}
+              className="w-full py-2.5 bg-[var(--text-primary)] text-[var(--bg-page)] hover:bg-[var(--signal)] hover:text-white transition-colors text-xs font-mono-tag uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm"
+            >
+              {submitting ? (
+                <span>SAVING SPECIFICATION...</span>
+              ) : savedSuccess ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span>SAVED TO CATALOG</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>{isEditing ? 'SAVE & UPDATE SPEC' : 'PUBLISH TO STORE'}</span>
+                </>
+              )}
+            </button>
+
+            {/* Mobile Return to Specs Action */}
+            <button
+              type="button"
+              onClick={() => setMobileViewTab('specs')}
+              className="lg:hidden w-full py-2.5 border border-[var(--border-color)] text-[var(--stone)] hover:text-[var(--text-primary)] text-xs font-mono-tag uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors"
+            >
+              <span>← RETURN TO SPECS FORM</span>
+            </button>
           </div>
         </div>
       </div>

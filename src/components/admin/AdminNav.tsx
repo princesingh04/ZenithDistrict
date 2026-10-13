@@ -32,24 +32,25 @@ export function AdminNav() {
     <header className="sticky top-0 z-40 w-full bg-[var(--bg-page)]/95 backdrop-blur-md border-b border-[var(--border-color)]">
       {/* Top Banner */}
       <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-12 h-14 flex items-center justify-between border-b border-[var(--border-color)] text-xs font-mono-tag">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link href="/admin" className="font-bold tracking-[0.1em] text-[var(--text-primary)] hover:text-[var(--signal)] transition-colors">
             ZENITHDISTRICT
           </Link>
-          <span className="text-[var(--stone)]">//</span>
-          <span className="px-1.5 py-0.5 text-[9px] uppercase tracking-widest bg-[var(--signal)]/10 text-[var(--signal)] border border-[var(--signal)]/30">
+          <span className="hidden sm:inline text-[var(--stone)]">//</span>
+          <span className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] uppercase tracking-widest bg-[var(--signal)]/10 text-[var(--signal)] border border-[var(--signal)]/30">
             INTERNAL OPS & ADMIN
           </span>
         </div>
 
-        <div className="flex items-center gap-4 text-[11px]">
+        <div className="flex items-center gap-2.5 sm:gap-4 text-[11px]">
           <Link
             href="/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-[var(--muted-text)] hover:text-[var(--text-primary)] transition-colors"
           >
-            <span>LIVE STOREFRONT</span>
+            <span className="hidden sm:inline">LIVE STOREFRONT</span>
+            <span className="sm:hidden">STORE</span>
             <ArrowUpRight className="w-3 h-3" />
           </Link>
           <span className="text-[var(--border-color)]">|</span>

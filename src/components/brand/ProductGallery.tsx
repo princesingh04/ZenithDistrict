@@ -67,7 +67,7 @@ export function ProductGallery({ product, activeColorway }: ProductGalleryProps)
   };
 
   const activeItem = views[activeIndex];
-  const realImg = product.realImages?.[activeColorway.id]?.[activeItem.view];
+  const realImg = product.realImages?.[activeColorway.id]?.[activeItem.view] || (activeItem.view === 'front' ? product.realImage : undefined);
 
   return (
     <div className="flex flex-col space-y-4 select-none">
@@ -102,7 +102,7 @@ export function ProductGallery({ product, activeColorway }: ProductGalleryProps)
         aria-label="Product gallery thumbnails"
       >
         {views.map((item, idx) => {
-          const thumbImg = product.realImages?.[activeColorway.id]?.[item.view];
+          const thumbImg = product.realImages?.[activeColorway.id]?.[item.view] || (item.view === 'front' ? product.realImage : undefined);
           const isActive = idx === activeIndex;
           
           return (

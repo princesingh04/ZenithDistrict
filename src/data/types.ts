@@ -206,6 +206,7 @@ export interface ApparelProduct {
   };
   care: string[];
   sizeChart: SizeChartEntry[];
+  realImage?: string;
   realImages?: Record<string, Partial<Record<GarmentView, string>>>;
   sortOrder: number;
   featured: boolean;
