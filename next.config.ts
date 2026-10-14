@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   cacheComponents: true,
   partialPrefetching: true,
+  serverExternalPackages: ["@prisma/client", ".prisma/client"],
   turbopack: {
     rules: {
       "*.css": {
