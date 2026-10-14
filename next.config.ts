@@ -18,14 +18,16 @@ const cspHeader = `
 const nextConfig: NextConfig = {
   /* config options here */
   poweredByHeader: false,
-  cacheComponents: true,
-  partialPrefetching: true,
   serverExternalPackages: [
     "@prisma/client",
     ".prisma/client",
     "pg",
+    "pg-cloudflare",
     "@prisma/adapter-pg",
   ],
+  outputFileTracingIncludes: {
+    '/**': ['./node_modules/pg-cloudflare/**/*'],
+  },
   turbopack: {
     rules: {
       "*.css": {

@@ -1,6 +1,6 @@
 import { unstable_cache } from 'next/cache';
-import { prisma } from '@/lib/prisma';
-import { ProductStatus as DbProductStatus } from '@prisma/client';
+import { neon } from '@neondatabase/serverless';
+import type { ProductStatus as DbProductStatus } from '@prisma/client';
 import { ProductVenture, Product, ProductStatus } from './types';
 
 export type { Product, ProductStatus };
@@ -169,7 +169,7 @@ function mapDbProductToVenture(dbProduct: {
   description: string;
   category: string;
   url: string;
-  status: DbProductStatus;
+  status: DbProductStatus | string;
   sortOrder: number;
 }): ProductVenture {
   const staticFallback = productsData.find((p) => p.slug === dbProduct.slug);
@@ -202,24 +202,35 @@ function mapDbProductToVenture(dbProduct: {
 }
 
 /**
- * Internal loader that fetches products from PostgreSQL via Prisma.
+ * Internal loader that fetches products from PostgreSQL via Neon HTTP.
  * Catches any connection error and safely falls back to static config.
  */
 async function fetchProductsFromDatabase(): Promise<ProductVenture[]> {
   try {
-    const dbProducts = await prisma.product.findMany({
-      where: {
-        status: {
-          in: [DbProductStatus.LIVE, DbProductStatus.COMING_SOON],
-        },
-      },
-      orderBy: {
-        sortOrder: 'asc',
-      },
-    });
+    const databaseUrl = process.env.DATABASE_URL;
+    if (databaseUrl) {
+      const sql = neon(databaseUrl);
+      const rows = await sql`
+        SELECT id, slug, name, description, category, url, status, "sortOrder"
+        FROM "Product"
+        WHERE status IN ('LIVE', 'COMING_SOON')
+        ORDER BY "sortOrder" ASC
+      `;
 
-    if (dbProducts && dbProducts.length > 0) {
-      return dbProducts.map(mapDbProductToVenture);
+      if (rows && rows.length > 0) {
+        return rows.map((row) =>
+          mapDbProductToVenture({
+            id: String(row.id),
+            slug: String(row.slug),
+            name: String(row.name),
+            description: String(row.description),
+            category: String(row.category),
+            url: String(row.url),
+            status: String(row.status),
+            sortOrder: Number(row.sortOrder ?? 0),
+          })
+        );
+      }
     }
   } catch (error) {
     // Server-side only logging: prevents client crashes during DB cold starts or offline state
@@ -249,12 +260,29 @@ export const getProducts = unstable_cache(
  */
 export async function getProductBySlug(slug: string): Promise<ProductVenture | null> {
   try {
-    const dbProduct = await prisma.product.findUnique({
-      where: { slug },
-    });
+    const databaseUrl = process.env.DATABASE_URL;
+    if (databaseUrl) {
+      const sql = neon(databaseUrl);
+      const rows = await sql`
+        SELECT id, slug, name, description, category, url, status, "sortOrder"
+        FROM "Product"
+        WHERE slug = ${slug}
+        LIMIT 1
+      `;
 
-    if (dbProduct) {
-      return mapDbProductToVenture(dbProduct);
+      if (rows && rows.length > 0) {
+        const row = rows[0];
+        return mapDbProductToVenture({
+          id: String(row.id),
+          slug: String(row.slug),
+          name: String(row.name),
+          description: String(row.description),
+          category: String(row.category),
+          url: String(row.url),
+          status: String(row.status),
+          sortOrder: Number(row.sortOrder ?? 0),
+        });
+      }
     }
   } catch (error) {
     console.error(`[getProductBySlug] DB query failed for slug "${slug}". Serving static fallback:`, error);

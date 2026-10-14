@@ -1,14 +1,26 @@
 import fs from 'fs';
 import path from 'path';
 import { ApparelProduct } from '@/data/types';
+import staticApparelData from '@/data/custom-apparel.json';
 
 const STORAGE_PATH = path.join(process.cwd(), 'src', 'data', 'custom-apparel.json');
 const DELETED_PATH = path.join(process.cwd(), 'src', 'data', 'deleted-apparel.json');
+
+function isEdgeOrWorker(): boolean {
+  return (
+    typeof (globalThis as unknown as { WebSocketPair?: unknown }).WebSocketPair !== 'undefined' ||
+    (typeof process !== 'undefined' && process.env.NEXT_RUNTIME === 'edge') ||
+    typeof fs?.readFileSync !== 'function'
+  );
+}
 
 /**
  * Reads custom dynamically-added products from local storage.
  */
 export async function getCustomApparelProducts(): Promise<ApparelProduct[]> {
+  if (isEdgeOrWorker()) {
+    return Array.isArray(staticApparelData) ? (staticApparelData as ApparelProduct[]) : [];
+  }
   try {
     if (!fs.existsSync(STORAGE_PATH)) {
       return [];
@@ -28,6 +40,9 @@ export async function getCustomApparelProducts(): Promise<ApparelProduct[]> {
  * Reads list of deleted product slugs.
  */
 export async function getDeletedApparelSlugs(): Promise<string[]> {
+  if (isEdgeOrWorker()) {
+    return [];
+  }
   try {
     if (!fs.existsSync(DELETED_PATH)) {
       return [];
@@ -45,6 +60,9 @@ export async function getDeletedApparelSlugs(): Promise<string[]> {
  * Saves or updates an apparel product.
  */
 export async function saveCustomApparelProduct(product: ApparelProduct): Promise<{ success: boolean; error?: string }> {
+  if (isEdgeOrWorker()) {
+    return { success: false, error: 'Filesystem modifications are not supported on edge runtimes.' };
+  }
   try {
     const existing = await getCustomApparelProducts();
     const index = existing.findIndex((p) => p.slug === product.slug);
@@ -76,6 +94,9 @@ export async function saveCustomApparelProduct(product: ApparelProduct): Promise
  * Deletes any apparel product by slug (removes from custom storage and marks baseline as deleted).
  */
 export async function deleteApparelProduct(slug: string): Promise<{ success: boolean; error?: string }> {
+  if (isEdgeOrWorker()) {
+    return { success: false, error: 'Filesystem modifications are not supported on edge runtimes.' };
+  }
   try {
     // 1. Remove from custom-apparel.json
     const existing = await getCustomApparelProducts();

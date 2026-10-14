@@ -5,6 +5,8 @@ import { execSync } from "node:child_process";
 if (process.env.NEXT_PRIVATE_STANDALONE === "true") {
   execSync("npx prisma generate && npx next build", { stdio: "inherit" });
 } else {
+  // Ensure @opennextjs/cloudflare is patched for Next 16 preview-props.json before bundling
+  execSync("node scripts/patch-opennext.mjs", { stdio: "inherit" });
   // If Cloudflare CI executes "npm run build" directly, delegate to opennextjs-cloudflare build
   execSync("npx opennextjs-cloudflare build", { stdio: "inherit" });
 }

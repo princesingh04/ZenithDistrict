@@ -7,9 +7,22 @@ const globalForPrisma = globalThis as unknown as {
   pool: Pool | undefined;
 };
 
+function isEdgeOrWorker(): boolean {
+  return (
+    typeof (globalThis as unknown as { WebSocketPair?: unknown }).WebSocketPair !== 'undefined' ||
+    (typeof process !== 'undefined' && process.env.NEXT_RUNTIME === 'edge')
+  );
+}
+
 export function getPrismaClient(): PrismaClient {
   if (globalForPrisma.prisma) {
     return globalForPrisma.prisma;
+  }
+
+  if (isEdgeOrWorker()) {
+    console.warn(
+      '[prisma] Direct Prisma Client with node-postgres adapter is not supported in edge/worker isolates. Use @neondatabase/serverless HTTP queries instead.'
+    );
   }
 
   const connectionString = process.env.DATABASE_URL;

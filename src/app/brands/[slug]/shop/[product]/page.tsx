@@ -16,8 +16,6 @@ type PageProps = {
   params: Promise<{ slug: string; product: string }>;
 };
 
-export const instant = false;
-
 export async function generateStaticParams() {
   const products = await getApparelProducts();
   return products.map((p) => ({
