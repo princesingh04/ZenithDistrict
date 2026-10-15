@@ -147,6 +147,8 @@ export interface Founder {
   role: string;
   bio: string;
   focus: string;
+  badge?: string;
+  isPrincipal?: boolean;
   links?: {
     github?: string;
     x?: string;
@@ -254,7 +256,7 @@ export interface SiteConfig {
     showGridDevToggle: boolean;
   };
   socials: {
-    github: string;
+    github?: string;
     x: string;
     linkedin?: string;
   };

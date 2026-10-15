@@ -148,16 +148,6 @@ export function Footer() {
               </a>
 
               <div className="pt-2 flex items-center gap-3 font-mono-tag text-xs">
-                {siteConfig.socials.github && (
-                  <a
-                    href={siteConfig.socials.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-[var(--signal)] transition-colors"
-                  >
-                    GITHUB ↗
-                  </a>
-                )}
                 {siteConfig.socials.x && (
                   <a
                     href={siteConfig.socials.x}

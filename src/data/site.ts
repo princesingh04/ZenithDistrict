@@ -9,7 +9,7 @@ export const siteConfig: SiteConfig = {
   description:
     'ZenithDistrict is an independent venture house. We design and build software, launch consumer brands, and run experiments, taking the strongest ideas from first sketch to standalone company.',
   establishedYear: 2026,
-  contactEmail: 'shreyashsr2004@gmail.com',
+  contactEmail: 'zenithdistrict14@gmail.com',
   location: 'Remote & Distributed',
   statusHeadline: 'One district. Many ventures.',
   shop: {
@@ -24,8 +24,7 @@ export const siteConfig: SiteConfig = {
     showGridDevToggle: false, // Architectural grid overlay disabled
   },
   socials: {
-    github: 'https://github.com/ShreyashSrivastavaa', // Primary repository hub
-    x: 'https://x.com/zenithdistrict', // TODO: replace if handle differs
+    x: 'https://x.com/Zenith_District',
   },
   navigation: [
     { label: 'Studio', href: '/studio', code: 'Z-01' },
