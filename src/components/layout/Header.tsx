@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BrandHeaderLogo } from '@/components/brand/BrandHeaderLogo';
@@ -15,6 +15,14 @@ export function Header() {
   const [hasScrolled, setHasScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
+
+  const handleOpenMobileMenu = useCallback(() => {
+    setMobileMenuOpen(true);
+  }, []);
+
+  const handleCloseMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -116,9 +124,10 @@ export function Header() {
             <ThemeToggle className="min-h-[44px] px-3 py-2 flex items-center" />
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(true)}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 border border-[var(--border-color)] hover:border-[var(--signal)] rounded-sm focus-visible:ring-2 focus-visible:ring-[var(--signal)] transition-colors"
+              onClick={handleOpenMobileMenu}
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 border border-[var(--border-color)] hover:border-[var(--signal)] rounded-sm focus-visible:ring-2 focus-visible:ring-[var(--signal)] transition-colors cursor-pointer"
               aria-label="Open mobile navigation menu"
+              aria-expanded={mobileMenuOpen}
             >
               <Menu className="w-5 h-5 text-[var(--text-primary)]" strokeWidth={1.5} />
             </button>
@@ -129,7 +138,7 @@ export function Header() {
       {/* Full-Screen Mobile Drawer */}
       <MobileMenu
         isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
+        onClose={handleCloseMobileMenu}
       />
     </>
   );

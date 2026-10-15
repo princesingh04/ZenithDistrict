@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
@@ -14,11 +14,17 @@ interface MobileMenuProps {
 
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const pathname = usePathname();
+  const prevPathname = useRef(pathname);
 
-  // Close on route change
+  // Close only when pathname actually changes while open
   useEffect(() => {
-    onClose();
-  }, [pathname, onClose]);
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname;
+      if (isOpen) {
+        onClose();
+      }
+    }
+  }, [pathname, isOpen, onClose]);
 
   // Trap body scroll & handle ESC key
   useEffect(() => {
