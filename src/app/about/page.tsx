@@ -278,24 +278,26 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {foundersData.map((founder, idx) => (
             <div
-              key={idx}
+              key={founder.name}
               className="p-8 border border-[var(--border-color)] bg-[var(--surface)] flex flex-col justify-between space-y-6"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="font-mono-tag text-xs text-[var(--signal)]">
-                    OPERATOR // 0{idx + 1}
+                    OPERATOR // {String(idx + 1).padStart(2, '0')}
                   </span>
-                  <span className="font-mono-tag text-xs text-[var(--stone)]">
-                    PRINCIPAL
-                  </span>
+                  {(founder.badge || founder.isPrincipal) && (
+                    <span className="font-mono-tag text-xs text-[var(--stone)]">
+                      {founder.badge || 'PRINCIPAL'}
+                    </span>
+                  )}
                 </div>
 
                 <div>
                   <h3 className="font-display text-3xl font-medium text-[var(--text-primary)]">
                     {founder.name}
                   </h3>
-                  <p className="font-mono-tag text-xs text-[var(--stone)] mt-0.5">
+                  <p className="font-mono-tag text-xs text-[var(--stone)] mt-0.5 uppercase">
                     {founder.role}
                   </p>
                 </div>
@@ -305,11 +307,13 @@ export default function AboutPage() {
                 </p>
 
                 <div className="pt-2 text-xs font-mono-tag text-[var(--stone)]">
-                  FOCUS // {founder.focus}
+                  {founder.focus.startsWith('FOCUS //')
+                    ? founder.focus
+                    : `FOCUS // ${founder.focus}`}
                 </div>
               </div>
 
-              {founder.links && (
+              {founder.links && (founder.links.github || founder.links.x) && (
                 <div className="pt-4 hairline-border-t flex items-center gap-4 font-mono-tag text-xs">
                   {founder.links.github && (
                     <a

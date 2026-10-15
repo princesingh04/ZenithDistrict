@@ -63,7 +63,7 @@ export async function submitContactInquiry(
   if (resendApiKey) {
     try {
       const resend = new Resend(resendApiKey);
-      const toEmail = process.env.RESEND_TO_EMAIL || 'shreyashsr2004@gmail.com';
+      const toEmail = process.env.RESEND_TO_EMAIL || 'zenithdistrict14@gmail.com';
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
       await resend.emails.send({
@@ -166,7 +166,7 @@ export async function submitBrandWaitlist(
   if (resendApiKey) {
     try {
       const resend = new Resend(resendApiKey);
-      const toEmail = process.env.RESEND_TO_EMAIL || 'shreyashsr2004@gmail.com';
+      const toEmail = process.env.RESEND_TO_EMAIL || 'zenithdistrict14@gmail.com';
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
       await resend.emails.send({

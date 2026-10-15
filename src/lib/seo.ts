@@ -51,7 +51,7 @@ export function constructMetadata({
       title: fullTitle,
       description: fullDesc,
       images: [image],
-      creator: '@zenithdistrict',
+      creator: '@Zenith_District',
     },
     robots: {
       index: !noIndex,
